@@ -352,4 +352,35 @@ router.delete('/products/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/orders
+router.get('/orders', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+// PATCH /api/admin/orders/:id/status
+router.patch('/orders/:id/status', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const valid = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+    if (!valid.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+
+    const result = await pool.query(
+      'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *',
+      [status, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating order status:', err);
+    res.status(500).json({ error: 'Failed to update status' });
+  }
+});
+
 module.exports = router;

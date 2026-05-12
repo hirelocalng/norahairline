@@ -1,14 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import About from './pages/About';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
+import AdminOrders from './pages/admin/AdminOrders';
 import ProductForm from './pages/admin/ProductForm';
 import AdminSettings from './pages/admin/AdminSettings';
 
@@ -43,6 +47,8 @@ function AppRoutes() {
       <Route path="/shop" element={<CustomerLayout><Shop /></CustomerLayout>} />
       <Route path="/product/:id" element={<CustomerLayout><ProductDetail /></CustomerLayout>} />
       <Route path="/about" element={<CustomerLayout><About /></CustomerLayout>} />
+      <Route path="/cart" element={<CustomerLayout><Cart /></CustomerLayout>} />
+      <Route path="/checkout" element={<CustomerLayout><Checkout /></CustomerLayout>} />
 
       {/* Admin Routes */}
       <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -51,6 +57,7 @@ function AppRoutes() {
       <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
       <Route path="/admin/products/new" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
       <Route path="/admin/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+      <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
       {/* Catch all */}
@@ -63,7 +70,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <CartProvider>
+          <AppRoutes />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   );

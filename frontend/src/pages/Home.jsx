@@ -28,13 +28,12 @@ export default function Home() {
   return (
     <div>
       {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-teal-900 via-teal-700 to-teal-500">
-        {/* Decorative background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 rounded-full border-2 border-gold-400"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full border-2 border-gold-400"></div>
-          <div className="absolute top-1/2 left-1/3 w-32 h-32 rounded-full border border-white"></div>
-        </div>
+      <section
+        className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+        style={{ backgroundImage: 'url(/hero-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      >
+        {/* Dark teal overlay */}
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(13, 74, 71, 0.75)' }}></div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-4 text-shadow leading-tight">

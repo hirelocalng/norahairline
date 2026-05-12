@@ -5,6 +5,7 @@ import { getDashboard } from '../../api';
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: '📊', label: 'Dashboard' },
+  { to: '/admin/orders', icon: '🧾', label: 'Orders' },
   { to: '/admin/products', icon: '📦', label: 'Products' },
   { to: '/admin/products/new', icon: '➕', label: 'Add Product' },
   { to: '/admin/settings', icon: '⚙️', label: 'Settings' },
