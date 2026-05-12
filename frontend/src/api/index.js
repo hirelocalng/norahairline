@@ -49,4 +49,7 @@ export const toggleAvailability = (id, available) =>
 
 export const deleteProduct = (id) => api.delete(`/admin/products/${id}`);
 
+export const changePassword = (currentPassword, newPassword) =>
+  api.post('/admin/change-password', { currentPassword, newPassword });
+
 export default api;

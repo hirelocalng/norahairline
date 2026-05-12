@@ -10,6 +10,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import ProductForm from './pages/admin/ProductForm';
+import AdminSettings from './pages/admin/AdminSettings';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -50,6 +51,7 @@ function AppRoutes() {
       <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
       <Route path="/admin/products/new" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
       <Route path="/admin/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+      <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />

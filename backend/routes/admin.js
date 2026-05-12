@@ -42,6 +42,39 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// POST /api/admin/change-password
+router.post('/change-password', authenticateAdmin, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+
+    const result = await pool.query('SELECT * FROM admins WHERE id = $1', [req.admin.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, result.rows[0].password_hash);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE admins SET password_hash = $1 WHERE id = $2', [newHash, req.admin.id]);
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
 // GET /api/admin/dashboard - stats
 router.get('/dashboard', authenticateAdmin, async (req, res) => {
   try {
