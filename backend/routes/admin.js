@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
 const { upload, cloudinary } = require('../middleware/upload');
+const { sendStatusUpdate } = require('../services/email');
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
@@ -371,7 +372,13 @@ router.patch('/orders/:id/status', authenticateAdmin, async (req, res) => {
       [status, id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
-    res.json(result.rows[0]);
+
+    const order = result.rows[0];
+
+    // Send status update email (non-blocking)
+    sendStatusUpdate(order, status).catch(err => console.error('Status email error:', err));
+
+    res.json(order);
   } catch (err) {
     console.error('Error updating order status:', err);
     res.status(500).json({ error: 'Failed to update status' });

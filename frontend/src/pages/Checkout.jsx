@@ -40,7 +40,7 @@ function buildWhatsAppMessage(form, items, subtotal, deliveryFee, grandTotal) {
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', phone: '', address: '', state: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', state: '' });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -63,6 +63,7 @@ export default function Checkout() {
     if (!form.name.trim()) e.name = 'Full name is required';
     if (!form.phone.trim()) e.phone = 'Phone number is required';
     else if (!/^[0-9+\s\-()]{7,15}$/.test(form.phone.trim())) e.phone = 'Enter a valid phone number';
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = 'Enter a valid email address';
     if (!form.address.trim()) e.address = 'Delivery address is required';
     if (!form.state) e.state = 'Please select a state';
     return e;
@@ -77,6 +78,7 @@ export default function Checkout() {
     const res = await api.post('/orders', {
       customerName: form.name,
       customerPhone: form.phone,
+      customerEmail: form.email.trim() || undefined,
       customerAddress: form.address,
       customerState: form.state,
       items,
@@ -198,6 +200,18 @@ export default function Checkout() {
                     placeholder="e.g. 08012345678"
                   />
                   {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Email Address <span className="text-gray-400 font-normal">(optional — for order updates)</span>
+                  </label>
+                  <input
+                    name="email" value={form.email} onChange={handleChange} type="email"
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${errors.email ? 'border-red-400' : 'border-gray-200'}`}
+                    placeholder="e.g. amara@example.com"
+                  />
+                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                 </div>
 
                 <div>

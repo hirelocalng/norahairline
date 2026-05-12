@@ -25,6 +25,7 @@ async function run() {
       id SERIAL PRIMARY KEY,
       customer_name VARCHAR(255) NOT NULL,
       customer_phone VARCHAR(50) NOT NULL,
+      customer_email VARCHAR(255),
       customer_address TEXT NOT NULL,
       customer_state VARCHAR(100) NOT NULL,
       items JSONB NOT NULL,
@@ -34,6 +35,8 @@ async function run() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  // Add email column if table already existed without it
+  await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(255)`);
   console.log('orders table ready');
 
   await client.end();
