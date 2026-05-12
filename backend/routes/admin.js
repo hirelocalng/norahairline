@@ -2,11 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const path = require('path');
-const fs = require('fs');
 const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, cloudinary } = require('../middleware/upload');
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
@@ -153,20 +151,21 @@ router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
 
     const imageFiles = req.files?.images || [];
     const videoFile = req.files?.video?.[0] || null;
-    const videoUrl = videoFile ? `/uploads/${videoFile.filename}` : null;
+    const videoUrl = videoFile ? videoFile.path : null;
+    const videoPublicId = videoFile ? videoFile.filename : null;
 
     const productResult = await client.query(
-      `INSERT INTO products (name, price, category, description, available, video_url)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [name, parseFloat(price), category, description || '', available !== 'false', videoUrl]
+      `INSERT INTO products (name, price, category, description, available, video_url, video_public_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [name, parseFloat(price), category, description || '', available !== 'false', videoUrl, videoPublicId]
     );
 
     const product = productResult.rows[0];
 
     for (let i = 0; i < imageFiles.length; i++) {
       await client.query(
-        `INSERT INTO product_images (product_id, image_url, is_primary) VALUES ($1, $2, $3)`,
-        [product.id, `/uploads/${imageFiles[i].filename}`, i === 0]
+        `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, is_primary) VALUES ($1, $2, $3, $4)`,
+        [product.id, imageFiles[i].path, imageFiles[i].filename, i === 0]
       );
     }
 
@@ -198,27 +197,24 @@ router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) =>
 
     const imageFiles = req.files?.images || [];
     const videoFile = req.files?.video?.[0] || null;
+    const setVideoNull = deleteVideo === 'true';
 
-    // Determine new video_url
-    let videoUrlUpdate = null;
-    let setVideoNull = deleteVideo === 'true';
-
-    if (videoFile) {
-      videoUrlUpdate = `/uploads/${videoFile.filename}`;
-    }
-
-    // Build update query dynamically based on whether video changed
+    // Build update query dynamically
     let updateQuery, updateParams;
     if (videoFile) {
-      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=$6 WHERE id=$7 RETURNING *`;
-      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', videoUrlUpdate, id];
+      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=$6, video_public_id=$7 WHERE id=$8 RETURNING *`;
+      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', videoFile.path, videoFile.filename, id];
     } else if (setVideoNull) {
-      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=NULL WHERE id=$6 RETURNING *`;
+      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=NULL, video_public_id=NULL WHERE id=$6 RETURNING *`;
       updateParams = [name, parseFloat(price), category, description || '', available !== 'false', id];
     } else {
       updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5 WHERE id=$6 RETURNING *`;
       updateParams = [name, parseFloat(price), category, description || '', available !== 'false', id];
     }
+
+    // Fetch old video public_id before updating
+    const oldProductResult = await pool.query('SELECT video_public_id FROM products WHERE id=$1', [id]);
+    const oldVideoPublicId = oldProductResult.rows[0]?.video_public_id;
 
     const productResult = await client.query(updateQuery, updateParams);
 
@@ -227,14 +223,9 @@ router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) =>
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Delete old video file if replaced or removed
-    if ((videoFile || setVideoNull)) {
-      const oldProduct = await pool.query('SELECT video_url FROM products WHERE id=$1', [id]);
-      const oldVideoUrl = oldProduct.rows[0]?.video_url;
-      if (oldVideoUrl) {
-        const filePath = path.join(__dirname, '..', oldVideoUrl);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      }
+    // Destroy old Cloudinary video if replaced or removed
+    if ((videoFile || setVideoNull) && oldVideoPublicId) {
+      cloudinary.uploader.destroy(oldVideoPublicId, { resource_type: 'video' }).catch(console.error);
     }
 
     // Delete specified images
@@ -242,12 +233,12 @@ router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) =>
       const idsToDelete = JSON.parse(deleteImageIds);
       for (const imgId of idsToDelete) {
         const imgResult = await client.query(
-          'SELECT image_url FROM product_images WHERE id = $1 AND product_id = $2',
+          'SELECT cloudinary_public_id FROM product_images WHERE id = $1 AND product_id = $2',
           [imgId, id]
         );
         if (imgResult.rows.length > 0) {
-          const filePath = path.join(__dirname, '..', imgResult.rows[0].image_url);
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+          const publicId = imgResult.rows[0].cloudinary_public_id;
+          if (publicId) cloudinary.uploader.destroy(publicId).catch(console.error);
           await client.query('DELETE FROM product_images WHERE id = $1', [imgId]);
         }
       }
@@ -263,8 +254,8 @@ router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) =>
 
       for (let i = 0; i < imageFiles.length; i++) {
         await client.query(
-          `INSERT INTO product_images (product_id, image_url, is_primary) VALUES ($1, $2, $3)`,
-          [id, `/uploads/${imageFiles[i].filename}`, !hasExisting && i === 0]
+          `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, is_primary) VALUES ($1, $2, $3, $4)`,
+          [id, imageFiles[i].path, imageFiles[i].filename, !hasExisting && i === 0]
         );
       }
     }
@@ -316,19 +307,15 @@ router.delete('/products/:id', authenticateAdmin, async (req, res) => {
 
     const { id } = req.params;
 
-    // Get all images to delete files
+    // Get Cloudinary public IDs before deleting
     const imagesResult = await client.query(
-      'SELECT image_url FROM product_images WHERE product_id = $1',
+      'SELECT cloudinary_public_id FROM product_images WHERE product_id = $1',
       [id]
     );
-
-    // Delete image files
-    for (const img of imagesResult.rows) {
-      const filePath = path.join(__dirname, '..', img.image_url);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    }
+    const videoResult = await client.query(
+      'SELECT video_public_id FROM products WHERE id = $1',
+      [id]
+    );
 
     // Delete product (cascade deletes images from DB)
     const result = await client.query(
@@ -342,6 +329,14 @@ router.delete('/products/:id', authenticateAdmin, async (req, res) => {
     }
 
     await client.query('COMMIT');
+
+    // Destroy Cloudinary assets after DB commit (non-blocking)
+    for (const img of imagesResult.rows) {
+      if (img.cloudinary_public_id) cloudinary.uploader.destroy(img.cloudinary_public_id).catch(console.error);
+    }
+    const videoPublicId = videoResult.rows[0]?.video_public_id;
+    if (videoPublicId) cloudinary.uploader.destroy(videoPublicId, { resource_type: 'video' }).catch(console.error);
+
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
     await client.query('ROLLBACK');

@@ -1,23 +1,26 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const isVideo = file.fieldname === 'video';
+    return {
+      folder: 'norahairline',
+      resource_type: isVideo ? 'video' : 'image',
+      allowed_formats: isVideo ? ['mp4'] : ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      ...(isVideo ? {} : { transformation: [{ quality: 'auto', fetch_format: 'auto' }] }),
+    };
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, 'product-' + uniqueSuffix + ext);
-  }
 });
 
 const fileFilter = (req, file, cb) => {
@@ -35,10 +38,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB (covers video uploads)
-    files: 11 // max 10 images + 1 video
-  }
+  limits: { fileSize: 50 * 1024 * 1024, files: 11 },
 });
 
-module.exports = upload;
+module.exports = { upload, cloudinary };
