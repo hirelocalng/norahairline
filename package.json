@@ -1,0 +1,14 @@
+{
+  "name": "norahairline",
+  "version": "1.0.0",
+  "description": "Nora Hair Line - Full-stack e-commerce site",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
+    "start": "node backend/server.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
