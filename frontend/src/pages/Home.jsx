@@ -308,7 +308,7 @@ export default function Home() {
             <div className="gold-divider"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {/* Location */}
             <div className="bg-teal-50 rounded-2xl p-6 text-center">
               <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -379,6 +379,25 @@ export default function Home() {
                 className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
               >
                 linktr.ee/norahairline_
+              </a>
+            </div>
+
+            {/* TikTok */}
+            <div className="bg-gray-50 rounded-2xl p-6 text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.85 4.85 0 01-1.01-.04z"/>
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-800 mb-2">TikTok</h3>
+              <p className="text-gray-600 text-sm mb-4">Watch our latest hair transformations and tutorials</p>
+              <a
+                href="https://tiktok.com/@norahairline1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-gray-800 hover:bg-black text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
+              >
+                @norahairline1
               </a>
             </div>
           </div>

@@ -1,7 +1,7 @@
 const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = 'orders@norahairline.up.railway.app';
+const FROM = 'onboarding@resend.dev';
 const WA = '08038707795';
 
 const TEAL = '#0D4A47';
