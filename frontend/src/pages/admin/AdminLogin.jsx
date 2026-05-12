@@ -88,9 +88,6 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-6">
-            Default: admin@norahairline.com / password
-          </p>
         </div>
       </div>
     </div>
