@@ -105,31 +105,54 @@ export default function Checkout() {
     if (Object.keys(e).length) { setErrors(e); return; }
 
     const pubKey = import.meta.env.VITE_KORAPAY_PUBLIC_KEY;
+    console.log('[Korapay] pubKey present:', !!pubKey);
+    console.log('[Korapay] window.Korapay present:', !!(window.Korapay));
+    console.log('[Korapay] grandTotal:', grandTotal);
+
     if (!pubKey) {
-      setErrors({ submit: 'Online payment is being set up. Please use WhatsApp to order for now.' });
+      setErrors({ submit: 'Online payment is not configured. Please use WhatsApp to order.' });
+      return;
+    }
+
+    if (!window.Korapay) {
+      setErrors({ submit: 'Payment system failed to load. Please refresh the page and try again, or use WhatsApp to order.' });
       return;
     }
 
     setSubmitting(true);
 
-    window.Korapay.initialize({
-      key: pubKey,
-      reference: `NORA-${Date.now()}`,
-      amount: Math.round(grandTotal * 100),
-      currency: 'NGN',
-      customer: { name: form.name, phone: form.phone },
-      onClose: () => setSubmitting(false),
-      onSuccess: () => {
-        // Payment confirmed — now save the order
-        saveOrder('korapay').catch(console.error);
-        clearCart();
-        setDone(true);
-      },
-      onFailed: () => {
-        setErrors({ submit: 'Payment failed. Please try again or use WhatsApp.' });
-        setSubmitting(false);
-      },
-    });
+    try {
+      window.Korapay.initialize({
+        key: pubKey,
+        reference: `NORA-${Date.now()}`,
+        amount: Math.round(grandTotal * 100),
+        currency: 'NGN',
+        customer: {
+          name: form.name,
+          email: `order@norahairline.com`,
+          phone: form.phone,
+        },
+        onClose: () => {
+          console.log('[Korapay] modal closed');
+          setSubmitting(false);
+        },
+        onSuccess: (data) => {
+          console.log('[Korapay] payment success', data);
+          saveOrder('korapay').catch(console.error);
+          clearCart();
+          setDone(true);
+        },
+        onFailed: (data) => {
+          console.log('[Korapay] payment failed', data);
+          setErrors({ submit: 'Payment failed. Please try again or use WhatsApp to order.' });
+          setSubmitting(false);
+        },
+      });
+    } catch (err) {
+      console.error('[Korapay] initialize error:', err);
+      setErrors({ submit: `Payment error: ${err.message}. Please refresh and try again.` });
+      setSubmitting(false);
+    }
   };
 
   if (done) {
