@@ -59,7 +59,7 @@ export default function AdminLogin() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
-                placeholder="admin@norahairline.com"
+                placeholder="norahairline@gmail.com"
               />
             </div>
             <div>
