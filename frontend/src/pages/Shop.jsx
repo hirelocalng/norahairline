@@ -73,13 +73,13 @@ export default function Shop() {
             />
           </div>
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap gap-2">
+          {/* Category Filter — horizontal scroll on mobile */}
+          <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap lg:flex-wrap" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {ALL_CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => handleCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-all duration-200 ${
                   activeCategory === cat
                     ? 'bg-teal-500 text-white border-teal-500'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-teal-400 hover:text-teal-600'
@@ -101,10 +101,10 @@ export default function Shop() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
-                <div className="h-64 bg-gray-200"></div>
+                <div className="h-40 sm:h-52 lg:h-64 bg-gray-200"></div>
                 <div className="p-4 space-y-3">
                   <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                   <div className="h-4 bg-gray-200 rounded w-1/2"></div>
@@ -128,7 +128,7 @@ export default function Shop() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filtered.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
         )}

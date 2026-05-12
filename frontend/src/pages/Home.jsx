@@ -136,7 +136,7 @@ export default function Home() {
             <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to left, transparent, #C9A84C)' }} />
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-5 leading-tight" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold text-white mb-5 leading-tight" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}>
             Nora Hair Line
           </h1>
 
@@ -151,7 +151,7 @@ export default function Home() {
             <div className="h-px flex-1 max-w-[80px]" style={{ background: '#C9A84C', opacity: 0.6 }} />
           </div>
 
-          <p className="text-xl md:text-3xl italic font-serif mb-7" style={{ color: '#C9A84C', textShadow: '0 1px 12px rgba(201,168,76,0.3)' }}>
+          <p className="text-lg md:text-3xl italic font-serif mb-7" style={{ color: '#C9A84C', textShadow: '0 1px 12px rgba(201,168,76,0.3)' }}>
             "Luxury for less..."
           </p>
 
@@ -228,10 +228,10 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
-                  <div className="h-64 bg-gray-200"></div>
+                  <div className="h-40 sm:h-52 lg:h-64 bg-gray-200"></div>
                   <div className="p-4 space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
@@ -246,7 +246,7 @@ export default function Home() {
               <p className="text-gray-400 text-sm mt-2">Check back soon!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featured.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           )}

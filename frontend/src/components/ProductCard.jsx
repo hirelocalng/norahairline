@@ -9,7 +9,7 @@ export default function ProductCard({ product }) {
     <div className="product-card group">
       {/* Image */}
       <Link to={`/product/${id}`}>
-        <div className="relative overflow-hidden h-64 bg-gray-100">
+        <div className="relative overflow-hidden h-40 sm:h-52 lg:h-64 bg-gray-100">
           {primary_image ? (
             <img
               src={primary_image}
@@ -32,24 +32,24 @@ export default function ProductCard({ product }) {
       </Link>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <Link to={`/product/${id}`}>
-          <h3 className="font-semibold text-gray-800 text-base mb-1 hover:text-teal-600 transition-colors line-clamp-2">{name}</h3>
+          <h3 className="font-semibold text-gray-800 text-xs sm:text-base mb-1 hover:text-teal-600 transition-colors line-clamp-2">{name}</h3>
         </Link>
-        <p className="text-gold-600 font-bold text-lg mb-4">
+        <p className="text-gold-600 font-bold text-sm sm:text-lg mb-3">
           ₦{Number(price).toLocaleString()}
         </p>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5 sm:gap-2">
           <button
             onClick={() => addItem(product)}
-            className="text-center text-sm font-medium bg-teal-500 hover:bg-teal-600 text-white py-2 px-4 rounded-full transition-all duration-200"
+            className="text-center text-xs sm:text-sm font-medium bg-teal-500 hover:bg-teal-600 text-white py-1.5 sm:py-2 px-3 sm:px-4 rounded-full transition-all duration-200"
           >
             Add to Cart
           </button>
           <Link
             to={`/product/${id}`}
-            className="text-center text-sm font-medium text-teal-600 border border-teal-500 hover:bg-teal-50 py-2 px-4 rounded-full transition-all duration-200"
+            className="text-center text-xs sm:text-sm font-medium text-teal-600 border border-teal-500 hover:bg-teal-50 py-1.5 sm:py-2 px-3 sm:px-4 rounded-full transition-all duration-200"
           >
             View Details
           </Link>

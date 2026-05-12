@@ -23,7 +23,21 @@ export default function Cart() {
           <p className="text-gray-500 text-sm mt-1">{count} item{count !== 1 ? 's' : ''}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sticky mobile checkout bar */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 shadow-lg">
+          <div>
+            <p className="text-xs text-gray-500">{count} item{count !== 1 ? 's' : ''}</p>
+            <p className="font-bold text-gray-800">₦{total.toLocaleString()}</p>
+          </div>
+          <Link
+            to="/checkout"
+            className="flex-1 max-w-xs text-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-full transition-colors text-sm"
+          >
+            Proceed to Checkout
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24 lg:pb-0">
           {/* Items */}
           <div className="lg:col-span-2 space-y-3">
             {items.map(item => (
@@ -77,8 +91,8 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
+          {/* Order Summary — hidden on mobile (sticky bar handles it) */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-24">
               <h2 className="font-bold text-gray-800 text-lg mb-4">Order Summary</h2>
               <div className="space-y-2 mb-4">
