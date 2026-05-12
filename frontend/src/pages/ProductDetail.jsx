@@ -108,6 +108,22 @@ export default function ProductDetail() {
                 ))}
               </div>
             )}
+
+            {/* Product Video */}
+            {product.video_url && (
+              <div className="mt-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Product Video</h3>
+                <video
+                  src={product.video_url}
+                  controls
+                  playsInline
+                  className="w-full rounded-2xl shadow-md bg-black"
+                  style={{ maxHeight: '360px' }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            )}
           </div>
 
           {/* Product Info */}

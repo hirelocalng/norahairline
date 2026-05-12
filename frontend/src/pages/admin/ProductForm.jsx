@@ -30,6 +30,10 @@ export default function ProductForm() {
   const [newFiles, setNewFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [deleteImageIds, setDeleteImageIds] = useState([]);
+  const [existingVideoUrl, setExistingVideoUrl] = useState(null);
+  const [newVideoFile, setNewVideoFile] = useState(null);
+  const [deleteVideo, setDeleteVideo] = useState(false);
+  const [videoError, setVideoError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEdit);
   const [error, setError] = useState('');
@@ -47,6 +51,7 @@ export default function ProductForm() {
           available: p.available,
         });
         setExistingImages(p.images || []);
+        setExistingVideoUrl(p.video_url || null);
       })
       .catch(() => setError('Failed to load product'))
       .finally(() => setFetchLoading(false));
@@ -97,8 +102,12 @@ export default function ProductForm() {
     if (isEdit && deleteImageIds.length > 0) {
       formData.append('deleteImageIds', JSON.stringify(deleteImageIds));
     }
+    if (isEdit && deleteVideo) {
+      formData.append('deleteVideo', 'true');
+    }
 
     newFiles.forEach(file => formData.append('images', file));
+    if (newVideoFile) formData.append('video', newVideoFile);
 
     try {
       if (isEdit) {
@@ -301,6 +310,97 @@ export default function ProductForm() {
                 className="hidden"
               />
             </label>
+          </div>
+
+          {/* Video */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h2 className="font-semibold text-gray-700 mb-1 pb-3 border-b border-gray-100">
+              Product Video <span className="text-gray-400 font-normal text-xs ml-1">optional</span>
+            </h2>
+            <p className="text-xs text-gray-400 mb-4">MP4 format only — max 50MB</p>
+
+            {/* Existing video (edit mode) */}
+            {isEdit && existingVideoUrl && !deleteVideo && !newVideoFile && (
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 font-medium mb-2">Current Video</p>
+                <video
+                  src={existingVideoUrl}
+                  controls
+                  className="w-full max-w-sm rounded-xl border border-gray-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => setDeleteVideo(true)}
+                  className="mt-2 text-xs text-red-500 hover:text-red-700 font-medium"
+                >
+                  ✕ Remove video
+                </button>
+              </div>
+            )}
+
+            {isEdit && deleteVideo && !newVideoFile && (
+              <div className="mb-4 flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                <span className="text-sm text-red-500">Video will be removed on save.</span>
+                <button
+                  type="button"
+                  onClick={() => setDeleteVideo(false)}
+                  className="text-xs text-gray-500 hover:text-gray-700 underline"
+                >
+                  Undo
+                </button>
+              </div>
+            )}
+
+            {/* New video preview */}
+            {newVideoFile && (
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 font-medium mb-2">New Video to Upload</p>
+                <video
+                  src={URL.createObjectURL(newVideoFile)}
+                  controls
+                  className="w-full max-w-sm rounded-xl border border-teal-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setNewVideoFile(null); setVideoError(''); }}
+                  className="mt-2 text-xs text-red-500 hover:text-red-700 font-medium"
+                >
+                  ✕ Remove
+                </button>
+              </div>
+            )}
+
+            {videoError && (
+              <p className="text-xs text-red-500 mb-3">{videoError}</p>
+            )}
+
+            {/* Upload area — hide if video already selected */}
+            {!newVideoFile && (
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-teal-400 hover:bg-teal-50/30 transition-all">
+                <svg className="w-9 h-9 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+                </svg>
+                <p className="text-sm text-gray-600 font-medium">Click to upload video</p>
+                <p className="text-xs text-gray-400 mt-1">MP4 — max 50MB</p>
+                <input
+                  type="file"
+                  accept="video/mp4"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 50 * 1024 * 1024) {
+                      setVideoError('Video exceeds 50MB limit');
+                      e.target.value = '';
+                      return;
+                    }
+                    setVideoError('');
+                    setDeleteVideo(false);
+                    setNewVideoFile(file);
+                  }}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
           {/* Actions */}

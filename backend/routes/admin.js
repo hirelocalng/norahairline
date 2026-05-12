@@ -137,8 +137,10 @@ router.get('/products/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
+const uploadFields = upload.fields([{ name: 'images', maxCount: 10 }, { name: 'video', maxCount: 1 }]);
+
 // POST /api/admin/products - create product
-router.post('/products', authenticateAdmin, upload.array('images', 10), async (req, res) => {
+router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -149,26 +151,23 @@ router.post('/products', authenticateAdmin, upload.array('images', 10), async (r
       return res.status(400).json({ error: 'Name, price, and category are required' });
     }
 
+    const imageFiles = req.files?.images || [];
+    const videoFile = req.files?.video?.[0] || null;
+    const videoUrl = videoFile ? `/uploads/${videoFile.filename}` : null;
+
     const productResult = await client.query(
-      `INSERT INTO products (name, price, category, description, available)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [name, parseFloat(price), category, description || '', available !== 'false']
+      `INSERT INTO products (name, price, category, description, available, video_url)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [name, parseFloat(price), category, description || '', available !== 'false', videoUrl]
     );
 
     const product = productResult.rows[0];
 
-    if (req.files && req.files.length > 0) {
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i];
-        const imageUrl = `/uploads/${file.filename}`;
-        const isPrimary = i === 0;
-
-        await client.query(
-          `INSERT INTO product_images (product_id, image_url, is_primary)
-           VALUES ($1, $2, $3)`,
-          [product.id, imageUrl, isPrimary]
-        );
-      }
+    for (let i = 0; i < imageFiles.length; i++) {
+      await client.query(
+        `INSERT INTO product_images (product_id, image_url, is_primary) VALUES ($1, $2, $3)`,
+        [product.id, `/uploads/${imageFiles[i].filename}`, i === 0]
+      );
     }
 
     await client.query('COMMIT');
@@ -189,24 +188,53 @@ router.post('/products', authenticateAdmin, upload.array('images', 10), async (r
 });
 
 // PUT /api/admin/products/:id - update product
-router.put('/products/:id', authenticateAdmin, upload.array('images', 10), async (req, res) => {
+router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
     const { id } = req.params;
-    const { name, price, category, description, available, deleteImageIds } = req.body;
+    const { name, price, category, description, available, deleteImageIds, deleteVideo } = req.body;
 
-    const productResult = await client.query(
-      `UPDATE products
-       SET name = $1, price = $2, category = $3, description = $4, available = $5
-       WHERE id = $6 RETURNING *`,
-      [name, parseFloat(price), category, description || '', available !== 'false', id]
-    );
+    const imageFiles = req.files?.images || [];
+    const videoFile = req.files?.video?.[0] || null;
+
+    // Determine new video_url
+    let videoUrlUpdate = null;
+    let setVideoNull = deleteVideo === 'true';
+
+    if (videoFile) {
+      videoUrlUpdate = `/uploads/${videoFile.filename}`;
+    }
+
+    // Build update query dynamically based on whether video changed
+    let updateQuery, updateParams;
+    if (videoFile) {
+      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=$6 WHERE id=$7 RETURNING *`;
+      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', videoUrlUpdate, id];
+    } else if (setVideoNull) {
+      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=NULL WHERE id=$6 RETURNING *`;
+      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', id];
+    } else {
+      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5 WHERE id=$6 RETURNING *`;
+      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', id];
+    }
+
+    const productResult = await client.query(updateQuery, updateParams);
 
     if (productResult.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Delete old video file if replaced or removed
+    if ((videoFile || setVideoNull)) {
+      const oldProduct = await pool.query('SELECT video_url FROM products WHERE id=$1', [id]);
+      const oldVideoUrl = oldProduct.rows[0]?.video_url;
+      if (oldVideoUrl) {
+        const filePath = path.join(__dirname, '..', oldVideoUrl);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
     }
 
     // Delete specified images
@@ -226,23 +254,17 @@ router.put('/products/:id', authenticateAdmin, upload.array('images', 10), async
     }
 
     // Add new images
-    if (req.files && req.files.length > 0) {
-      // Check if there are existing images
+    if (imageFiles.length > 0) {
       const existingImages = await client.query(
         'SELECT COUNT(*) FROM product_images WHERE product_id = $1',
         [id]
       );
       const hasExisting = parseInt(existingImages.rows[0].count) > 0;
 
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i];
-        const imageUrl = `/uploads/${file.filename}`;
-        const isPrimary = !hasExisting && i === 0;
-
+      for (let i = 0; i < imageFiles.length; i++) {
         await client.query(
-          `INSERT INTO product_images (product_id, image_url, is_primary)
-           VALUES ($1, $2, $3)`,
-          [id, imageUrl, isPrimary]
+          `INSERT INTO product_images (product_id, image_url, is_primary) VALUES ($1, $2, $3)`,
+          [id, `/uploads/${imageFiles[i].filename}`, !hasExisting && i === 0]
         );
       }
     }
