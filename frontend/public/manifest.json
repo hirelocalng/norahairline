@@ -1,0 +1,25 @@
+{
+  "name": "Nora Hair Line",
+  "short_name": "NoraHair",
+  "description": "Premium wigs, frontals, bundles and more — luxury for less.",
+  "theme_color": "#0D4A47",
+  "background_color": "#0D4A47",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

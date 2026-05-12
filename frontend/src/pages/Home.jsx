@@ -17,6 +17,8 @@ const CATEGORIES = [
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
 
   useEffect(() => {
     getFeaturedProducts()
@@ -24,6 +26,27 @@ export default function Home() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      setShowInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', () => setShowInstall(false));
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    setInstallPrompt(null);
+    setShowInstall(false);
+  };
 
   return (
     <div>
@@ -159,7 +182,7 @@ export default function Home() {
             Discover premium quality wigs, frontals, bundles and more — crafted to make you look and feel your most confident.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
             <Link to="/shop" className="btn-primary text-center">
               Shop Now
             </Link>
@@ -174,6 +197,17 @@ export default function Home() {
               </svg>
               Chat Us on WhatsApp
             </a>
+            {showInstall && (
+              <button
+                onClick={handleInstall}
+                className="flex items-center justify-center gap-2 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md border-2 border-white/60 hover:border-white hover:bg-white/10"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Install Our App
+              </button>
+            )}
           </div>
         </div>
 

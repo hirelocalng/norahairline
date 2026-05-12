@@ -6,6 +6,7 @@ const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
 const { upload, cloudinary } = require('../middleware/upload');
 const { sendStatusUpdate } = require('../services/email');
+const { sendNewProductNotification } = require('../services/notifications');
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
@@ -178,6 +179,9 @@ router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
     );
 
     res.status(201).json({ ...product, images: imagesResult.rows });
+
+    // Send push notification (non-blocking, after response)
+    sendNewProductNotification(product.name).catch(console.error);
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error creating product:', err);
