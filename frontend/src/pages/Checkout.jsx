@@ -6,16 +6,23 @@ import api from '../api';
 const NIGERIA_STATES = [
   'Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno',
   'Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT - Abuja','Gombe',
-  'Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos',
+  'Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara',
+  'Lagos Mainland','Lagos Island',
   'Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto',
   'Taraba','Yobe','Zamfara',
 ];
 
 const WHATSAPP_NUMBER = '2348038707795';
 
-function buildWhatsAppMessage(form, items, total) {
+function getDeliveryFee(state) {
+  if (state === 'Lagos Mainland') return 4000;
+  if (state === 'Lagos Island') return 5000;
+  return state ? 5000 : 0;
+}
+
+function buildWhatsAppMessage(form, items, subtotal, deliveryFee, grandTotal) {
   const lines = items.map(i => `- ${i.name} x${i.quantity} - ₦${(i.price * i.quantity).toLocaleString()}`).join('\n');
-  return `Hi Nora Hair Line! I want to order:\n${lines}\nTotal: ₦${total.toLocaleString()}\nName: ${form.name}, Phone: ${form.phone}, Address: ${form.address}, State: ${form.state}`;
+  return `Hi Nora Hair Line! I want to order:\n${lines}\nSubtotal: ₦${subtotal.toLocaleString()}\nDelivery: ₦${deliveryFee.toLocaleString()}\nTotal: ₦${grandTotal.toLocaleString()}\nName: ${form.name}, Phone: ${form.phone}, Address: ${form.address}, State: ${form.state}`;
 }
 
 export default function Checkout() {
@@ -25,6 +32,9 @@ export default function Checkout() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+
+  const deliveryFee = getDeliveryFee(form.state);
+  const grandTotal = total + deliveryFee;
 
   if (items.length === 0 && !done) {
     return (
@@ -58,7 +68,7 @@ export default function Checkout() {
       customerAddress: form.address,
       customerState: form.state,
       items,
-      total,
+      total: grandTotal,
       paymentMethod,
     });
     return res.data;
@@ -70,7 +80,7 @@ export default function Checkout() {
     setSubmitting(true);
     try {
       await saveOrder('whatsapp');
-      const msg = buildWhatsAppMessage(form, items, total);
+      const msg = buildWhatsAppMessage(form, items, total, deliveryFee, grandTotal);
       clearCart();
       setDone(true);
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -97,7 +107,7 @@ export default function Checkout() {
       window.Korapay.initialize({
         key: pubKey,
         reference: `NORA-${order.id}-${Date.now()}`,
-        amount: Math.round(total * 100),
+        amount: Math.round(grandTotal * 100),
         currency: 'NGN',
         customer: { name: form.name, phone: form.phone },
         onClose: () => setSubmitting(false),
@@ -243,10 +253,18 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-gray-100 pt-4">
-                <div className="flex justify-between font-bold text-gray-800">
+              <div className="border-t border-gray-100 pt-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Subtotal</span>
+                  <span>₦{total.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Delivery</span>
+                  <span>{form.state ? `₦${deliveryFee.toLocaleString()}` : <span className="text-gray-400 italic">Select state</span>}</span>
+                </div>
+                <div className="flex justify-between font-bold text-gray-800 border-t border-gray-100 pt-2">
                   <span>Total</span>
-                  <span className="text-gold-600 text-lg">₦{total.toLocaleString()}</span>
+                  <span className="text-gold-600 text-lg">₦{grandTotal.toLocaleString()}</span>
                 </div>
               </div>
             </div>
