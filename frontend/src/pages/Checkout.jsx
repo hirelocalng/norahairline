@@ -22,7 +22,19 @@ function getDeliveryFee(state) {
 
 function buildWhatsAppMessage(form, items, subtotal, deliveryFee, grandTotal) {
   const lines = items.map(i => `- ${i.name} x${i.quantity} - ₦${(i.price * i.quantity).toLocaleString()}`).join('\n');
-  return `Hi Nora Hair Line! I want to order:\n${lines}\nSubtotal: ₦${subtotal.toLocaleString()}\nDelivery: ₦${deliveryFee.toLocaleString()}\nTotal: ₦${grandTotal.toLocaleString()}\nName: ${form.name}, Phone: ${form.phone}, Address: ${form.address}, State: ${form.state}`;
+  return (
+    `Hi Nora Hair Line! I'd like to place an order:\n\n` +
+    `${lines}\n\n` +
+    `Subtotal: ₦${subtotal.toLocaleString()}\n` +
+    `Delivery: ₦${deliveryFee.toLocaleString()}\n` +
+    `Total: ₦${grandTotal.toLocaleString()}\n\n` +
+    `Customer Details:\n` +
+    `Name: ${form.name}\n` +
+    `Phone: ${form.phone}\n` +
+    `Address: ${form.address}\n` +
+    `State: ${form.state}\n\n` +
+    `Please confirm my order. Thank you!`
+  );
 }
 
 export default function Checkout() {
@@ -74,24 +86,21 @@ export default function Checkout() {
     return res.data;
   };
 
-  const handleWhatsApp = async () => {
+  const handleWhatsApp = () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
-    setSubmitting(true);
-    try {
-      await saveOrder('whatsapp');
-      const msg = buildWhatsAppMessage(form, items, total, deliveryFee, grandTotal);
-      clearCart();
-      setDone(true);
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-    } catch {
-      setErrors({ submit: 'Failed to place order. Please try again.' });
-    } finally {
-      setSubmitting(false);
-    }
+
+    const msg = buildWhatsAppMessage(form, items, total, deliveryFee, grandTotal);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    // Save order to DB in background — don't block WhatsApp on it
+    saveOrder('whatsapp').catch(console.error);
+
+    clearCart();
+    setDone(true);
   };
 
-  const handleKorapay = async () => {
+  const handleKorapay = () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
 
@@ -102,25 +111,25 @@ export default function Checkout() {
     }
 
     setSubmitting(true);
-    try {
-      const order = await saveOrder('korapay');
-      window.Korapay.initialize({
-        key: pubKey,
-        reference: `NORA-${order.id}-${Date.now()}`,
-        amount: Math.round(grandTotal * 100),
-        currency: 'NGN',
-        customer: { name: form.name, phone: form.phone },
-        onClose: () => setSubmitting(false),
-        onSuccess: () => { clearCart(); setDone(true); },
-        onFailed: () => {
-          setErrors({ submit: 'Payment failed. Please try again or use WhatsApp.' });
-          setSubmitting(false);
-        },
-      });
-    } catch {
-      setErrors({ submit: 'Failed to initiate payment. Please try again.' });
-      setSubmitting(false);
-    }
+
+    window.Korapay.initialize({
+      key: pubKey,
+      reference: `NORA-${Date.now()}`,
+      amount: Math.round(grandTotal * 100),
+      currency: 'NGN',
+      customer: { name: form.name, phone: form.phone },
+      onClose: () => setSubmitting(false),
+      onSuccess: () => {
+        // Payment confirmed — now save the order
+        saveOrder('korapay').catch(console.error);
+        clearCart();
+        setDone(true);
+      },
+      onFailed: () => {
+        setErrors({ submit: 'Payment failed. Please try again or use WhatsApp.' });
+        setSubmitting(false);
+      },
+    });
   };
 
   if (done) {
