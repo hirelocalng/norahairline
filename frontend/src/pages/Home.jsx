@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getFeaturedProducts, getCategoryList } from '../api';
+import { getFeaturedProducts } from '../api';
 import ProductCard from '../components/ProductCard';
+
+const CATEGORIES = [
+  { name: 'Wigs', image: '/categories/wigs.jpg', desc: 'Full wigs for every occasion' },
+  { name: 'Frontals', image: '/categories/frontals.jpg', desc: 'Natural hairline frontals' },
+  { name: 'Closures', image: '/categories/closures.jpg', desc: 'Seamless closures' },
+  { name: '360 Illusion Frontal', image: '/categories/360-frontal.jpg', desc: 'Full 360 coverage' },
+  { name: 'Bundles', image: '/categories/bundles.jpg', desc: 'Premium hair bundles' },
+  { name: 'Vietnam Bone Straight', image: '/categories/vietnam-bone-straight.jpg', desc: 'Ultra silky straight' },
+  { name: 'Pixie Curls', image: '/categories/pixie-curls.jpg', desc: 'Beautiful curly pixie' },
+  { name: 'Curly Hair', image: '/categories/curly-hair.jpg', desc: 'Natural curly textures' },
+  { name: 'Hair Products', image: '/categories/hair-products.jpg', desc: 'Premium hair care products' },
+];
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
 
@@ -15,9 +26,6 @@ export default function Home() {
       .then(res => setFeatured(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-    getCategoryList()
-      .then(res => setCategories(res.data))
-      .catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -222,30 +230,22 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((cat) => (
+            {CATEGORIES.map((cat) => (
               <Link
-                key={cat.id}
+                key={cat.name}
                 to={`/shop?category=${encodeURIComponent(cat.name)}`}
                 className="group rounded-2xl border-2 border-gray-100 hover:border-gold-400 bg-white hover:bg-gold-50 transition-all duration-300 text-center shadow-sm hover:shadow-md overflow-hidden"
               >
-                <div className="aspect-square overflow-hidden rounded-t-xl bg-gray-100">
-                  {cat.image_url ? (
-                    <img
-                      src={cat.image_url}
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100">
-                      <svg className="w-10 h-10 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  )}
+                <div className="aspect-square overflow-hidden rounded-t-xl">
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
                 <div className="p-3">
                   <h3 className="font-semibold text-teal-700 text-sm group-hover:text-teal-900 mb-0.5">{cat.name}</h3>
-                  {cat.description && <p className="text-gray-400 text-xs">{cat.description}</p>}
+                  <p className="text-gray-400 text-xs">{cat.desc}</p>
                 </div>
               </Link>
             ))}
