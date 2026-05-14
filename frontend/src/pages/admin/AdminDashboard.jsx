@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/admin/orders', icon: '🧾', label: 'Orders' },
   { to: '/admin/products', icon: '📦', label: 'Products' },
   { to: '/admin/products/new', icon: '➕', label: 'Add Product' },
+  { to: '/admin/categories', icon: '🗂️', label: 'Categories' },
   { to: '/admin/settings', icon: '⚙️', label: 'Settings' },
 ];
 

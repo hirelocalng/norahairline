@@ -1,28 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { createProduct, updateProduct, getAdminProduct } from '../../api';
+import { createProduct, updateProduct, getAdminProduct, getAdminCategories } from '../../api';
 import { AdminLayout } from './AdminDashboard';
-
-const CATEGORIES = [
-  'Wigs',
-  'Frontals',
-  'Closures',
-  '360 Illusion Frontal',
-  'Bundles',
-  'Vietnam Bone Straight',
-  'Pixie Curls',
-  'Curly Hair',
-];
 
 export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: '',
     price: '',
-    category: CATEGORIES[0],
+    category: '',
     description: '',
     available: true,
   });
@@ -37,6 +27,18 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEdit);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getAdminCategories()
+      .then(res => {
+        const names = res.data.map(c => c.name);
+        setCategories(names);
+        if (!isEdit && names.length > 0) {
+          setForm(prev => ({ ...prev, category: prev.category || names[0] }));
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -198,7 +200,7 @@ export default function ProductForm() {
                     required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 bg-white"
                   >
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>

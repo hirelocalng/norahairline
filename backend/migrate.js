@@ -39,6 +39,36 @@ async function run() {
   await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(255)`);
   console.log('orders table ready');
 
+  // Create categories table
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS categories (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(100) NOT NULL UNIQUE,
+      image_url VARCHAR(500),
+      cloudinary_public_id VARCHAR(500),
+      description VARCHAR(255),
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  console.log('categories table ready');
+
+  // Seed existing + new categories (skip if already present)
+  await client.query(`
+    INSERT INTO categories (name, image_url, description, sort_order) VALUES
+      ('Wigs',                '/categories/wigs.jpg',                  'Full wigs for every occasion',  1),
+      ('Frontals',            '/categories/frontals.jpg',              'Natural hairline frontals',      2),
+      ('Closures',            '/categories/closures.jpg',              'Seamless closures',              3),
+      ('360 Illusion Frontal','/categories/360-frontal.jpg',           'Full 360 coverage',              4),
+      ('Bundles',             '/categories/bundles.jpg',               'Premium hair bundles',           5),
+      ('Vietnam Bone Straight','/categories/vietnam-bone-straight.jpg','Ultra silky straight',           6),
+      ('Pixie Curls',         '/categories/pixie-curls.jpg',           'Beautiful curly pixie',          7),
+      ('Curly Hair',          '/categories/curly-hair.jpg',            'Natural curly textures',         8),
+      ('Hair Products',       NULL,                                    'Premium hair care products',     9)
+    ON CONFLICT (name) DO NOTHING
+  `);
+  console.log('categories seeded');
+
   await client.end();
   console.log('Migration complete');
 }

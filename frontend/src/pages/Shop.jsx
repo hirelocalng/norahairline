@@ -1,27 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getProducts } from '../api';
+import { getProducts, getCategoryList } from '../api';
 import ProductCard from '../components/ProductCard';
-
-const ALL_CATEGORIES = [
-  'All',
-  'Wigs',
-  'Frontals',
-  'Closures',
-  '360 Illusion Frontal',
-  'Bundles',
-  'Vietnam Bone Straight',
-  'Pixie Curls',
-  'Curly Hair',
-];
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [categoryNames, setCategoryNames] = useState([]);
 
   const activeCategory = searchParams.get('category') || 'All';
+
+  useEffect(() => {
+    getCategoryList()
+      .then(res => setCategoryNames(res.data.map(c => c.name)))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -75,7 +70,7 @@ export default function Shop() {
 
           {/* Category Filter — horizontal scroll on mobile */}
           <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap lg:flex-wrap" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {ALL_CATEGORIES.map(cat => (
+            {['All', ...categoryNames].map(cat => (
               <button
                 key={cat}
                 onClick={() => handleCategory(cat)}

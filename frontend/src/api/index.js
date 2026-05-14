@@ -52,4 +52,13 @@ export const deleteProduct = (id) => api.delete(`/admin/products/${id}`);
 export const changePassword = (currentPassword, newPassword) =>
   api.post('/admin/change-password', { currentPassword, newPassword });
 
+// Category endpoints
+export const getCategoryList = () => api.get('/categories');
+export const getAdminCategories = () => api.get('/admin/categories');
+export const createCategory = (formData) =>
+  api.post('/admin/categories', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const updateCategory = (id, formData) =>
+  api.put(`/admin/categories/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const deleteCategory = (id) => api.delete(`/admin/categories/${id}`);
+
 export default api;
