@@ -25,9 +25,6 @@ export default function ProductCard({ product }) {
               <span className="text-teal-400 text-xs mt-2">No image</span>
             </div>
           )}
-          <div className="absolute top-3 left-3">
-            <span className="category-badge bg-white/90 backdrop-blur-sm">{category}</span>
-          </div>
         </div>
       </Link>
 
