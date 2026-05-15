@@ -1,6 +1,7 @@
 const ONESIGNAL_APP_ID = '76f4a464-6f32-4364-ae9b-d39b8223087f';
+const SHOP_URL = 'https://norahairline.up.railway.app/shop';
 
-async function sendNewProductNotification(productName) {
+async function sendPush(heading, content) {
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
   if (!apiKey) {
     console.log('ONESIGNAL_REST_API_KEY not set — skipping push notification');
@@ -17,9 +18,9 @@ async function sendNewProductNotification(productName) {
       body: JSON.stringify({
         app_id: ONESIGNAL_APP_ID,
         included_segments: ['All'],
-        headings: { en: 'Nora Hair Line' },
-        contents: { en: `New arrival: ${productName} 💛 Shop now at Nora Hair Line!` },
-        url: 'https://norahairline.up.railway.app/shop',
+        headings: { en: heading },
+        contents: { en: content },
+        url: SHOP_URL,
       }),
     });
 
@@ -31,4 +32,12 @@ async function sendNewProductNotification(productName) {
   }
 }
 
-module.exports = { sendNewProductNotification };
+function sendNewProductNotification(productName) {
+  return sendPush('Nora Hair Line', `New arrival: ${productName} 💛 Shop now at Nora Hair Line!`);
+}
+
+function sendFlashSaleNotification() {
+  return sendPush('🔥 Flash Sale — Nora Hair Line', 'A flash sale is live right now! Grab your favourites before time runs out 🛍️');
+}
+
+module.exports = { sendNewProductNotification, sendFlashSaleNotification };

@@ -6,7 +6,7 @@ const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
 const { upload, cloudinary, handleUpload } = require('../middleware/upload');
 const { sendStatusUpdate } = require('../services/email');
-const { sendNewProductNotification } = require('../services/notifications');
+const { sendNewProductNotification, sendFlashSaleNotification } = require('../services/notifications');
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
@@ -411,8 +411,9 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
     const { active, end_date, clearBanner } = req.body;
     const bannerFile = req.file;
 
-    const current = await pool.query('SELECT banner_image_public_id FROM flash_sale_settings WHERE id = 1');
+    const current = await pool.query('SELECT active, banner_image_public_id FROM flash_sale_settings WHERE id = 1');
     const currentPublicId = current.rows[0]?.banner_image_public_id;
+    const wasActive = current.rows[0]?.active ?? false;
 
     let bannerImageUrl;
     let bannerImagePublicId;
@@ -442,6 +443,12 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
     );
 
     res.json(result.rows[0]);
+
+    // Notify subscribers when sale is switched on (not on every save)
+    const nowActive = active === 'true' || active === true;
+    if (nowActive && !wasActive) {
+      sendFlashSaleNotification().catch(console.error);
+    }
   } catch (err) {
     console.error('Error updating flash sale:', err);
     res.status(500).json({ error: 'Failed to update flash sale settings' });
