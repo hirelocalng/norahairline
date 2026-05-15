@@ -25,6 +25,11 @@ export default function ProductCard({ product }) {
               <span className="text-teal-400 text-xs mt-2">No image</span>
             </div>
           )}
+          {original_price && (
+            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full tracking-wide">
+              SALE
+            </span>
+          )}
         </div>
       </Link>
 
