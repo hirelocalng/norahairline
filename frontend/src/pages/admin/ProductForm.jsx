@@ -34,6 +34,7 @@ export default function ProductForm() {
   const [deleteImageIds, setDeleteImageIds] = useState([]);
   const [existingVideoUrl, setExistingVideoUrl] = useState(null);
   const [newVideoFile, setNewVideoFile] = useState(null);
+  const [newVideoPreviewUrl, setNewVideoPreviewUrl] = useState(null);
   const [deleteVideo, setDeleteVideo] = useState(false);
   const [videoError, setVideoError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -377,17 +378,22 @@ export default function ProductForm() {
             )}
 
             {/* New video preview */}
-            {newVideoFile && (
+            {newVideoFile && newVideoPreviewUrl && (
               <div className="mb-4">
                 <p className="text-xs text-gray-500 font-medium mb-2">New Video to Upload</p>
                 <video
-                  src={URL.createObjectURL(newVideoFile)}
+                  src={newVideoPreviewUrl}
                   controls
                   className="w-full max-w-sm rounded-xl border border-teal-200"
                 />
                 <button
                   type="button"
-                  onClick={() => { setNewVideoFile(null); setVideoError(''); }}
+                  onClick={() => {
+                    URL.revokeObjectURL(newVideoPreviewUrl);
+                    setNewVideoPreviewUrl(null);
+                    setNewVideoFile(null);
+                    setVideoError('');
+                  }}
                   className="mt-2 text-xs text-red-500 hover:text-red-700 font-medium"
                 >
                   ✕ Remove
@@ -420,6 +426,8 @@ export default function ProductForm() {
                     }
                     setVideoError('');
                     setDeleteVideo(false);
+                    if (newVideoPreviewUrl) URL.revokeObjectURL(newVideoPreviewUrl);
+                    setNewVideoPreviewUrl(URL.createObjectURL(file));
                     setNewVideoFile(file);
                   }}
                   className="hidden"

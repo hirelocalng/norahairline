@@ -235,7 +235,12 @@ router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) =>
 
     // Delete specified images
     if (deleteImageIds) {
-      const idsToDelete = JSON.parse(deleteImageIds);
+      let idsToDelete;
+      try { idsToDelete = JSON.parse(deleteImageIds); }
+      catch {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Invalid deleteImageIds format' });
+      }
       for (const imgId of idsToDelete) {
         const imgResult = await client.query(
           'SELECT cloudinary_public_id FROM product_images WHERE id = $1 AND product_id = $2',

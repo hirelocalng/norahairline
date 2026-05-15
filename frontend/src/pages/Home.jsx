@@ -35,10 +35,12 @@ export default function Home() {
       setInstallPrompt(e);
       setShowInstall(true);
     };
+    const handleInstalled = () => setShowInstall(false);
     window.addEventListener('beforeinstallprompt', handler);
-    window.addEventListener('appinstalled', () => setShowInstall(false));
+    window.addEventListener('appinstalled', handleInstalled);
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', handleInstalled);
     };
   }, []);
 

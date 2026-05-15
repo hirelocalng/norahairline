@@ -67,7 +67,9 @@ export default function AdminOrders() {
         ) : (
           <div className="space-y-3">
             {orders.map(order => {
-              const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+              let items = [];
+              try { items = typeof order.items === 'string' ? JSON.parse(order.items) : (order.items || []); }
+              catch { items = []; }
               const isExpanded = expanded === order.id;
 
               return (

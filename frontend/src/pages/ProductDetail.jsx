@@ -20,14 +20,20 @@ export default function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
+    setError(null);
+    setProduct(null);
     setRelatedProducts([]);
+
     getProduct(id)
       .then(res => {
+        if (cancelled) return;
         setProduct(res.data);
         setActiveImage(0);
         getProducts(res.data.category)
           .then(relRes => {
+            if (cancelled) return;
             setRelatedProducts(
               relRes.data.filter(p => p.id !== Number(id)).slice(0, 2)
             );
@@ -35,9 +41,12 @@ export default function ProductDetail() {
           .catch(() => {});
       })
       .catch(err => {
+        if (cancelled) return;
         setError(err.response?.status === 404 ? 'Product not found' : 'Failed to load product');
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
   }, [id]);
 
   if (loading) return (

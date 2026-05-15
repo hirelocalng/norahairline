@@ -12,6 +12,11 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
+    const validMethods = ['whatsapp', 'korapay'];
+    if (!validMethods.includes(paymentMethod)) {
+      return res.status(400).json({ error: 'Invalid payment method' });
+    }
+
     const result = await pool.query(
       `INSERT INTO orders (customer_name, customer_phone, customer_email, customer_address, customer_state, items, total, payment_method)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,

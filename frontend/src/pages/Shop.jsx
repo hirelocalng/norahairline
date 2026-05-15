@@ -25,11 +25,13 @@ export default function Shop() {
   const activeCategory = searchParams.get('category') || 'All';
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     getProducts(activeCategory === 'All' ? '' : activeCategory)
-      .then(res => setProducts(res.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      .then(res => { if (!cancelled) setProducts(res.data); })
+      .catch(err => { if (!cancelled) console.error(err); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [activeCategory]);
 
   const handleCategory = (cat) => {
