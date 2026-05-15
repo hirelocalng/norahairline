@@ -56,13 +56,13 @@ export default function FlashSaleBanner() {
       <div className="flex items-center gap-3 flex-shrink-0">
         <span
           className="flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full animate-pulse"
-          style={{ background: '#e53e3e', color: '#fff' }}
+          style={{ background: '#7A0F3D', color: '#fff' }}
         >
           ⚡ FLASH SALE
         </span>
         <div className="hidden sm:block">
           <p className="text-white font-bold text-sm leading-tight">Limited Time Offer!</p>
-          <p className="text-xs" style={{ color: '#C9A84C' }}>Grab it before it's gone</p>
+          <p className="text-xs" style={{ color: '#D4B06A' }}>Grab it before it's gone</p>
         </div>
       </div>
 
@@ -71,16 +71,16 @@ export default function FlashSaleBanner() {
         {units.map(({ value, label }, i) => (
           <div key={label} className="flex items-center gap-1.5">
             {i > 0 && (
-              <span className="font-bold text-lg leading-none" style={{ color: '#C9A84C' }}>:</span>
+              <span className="font-bold text-lg leading-none" style={{ color: '#D4B06A' }}>:</span>
             )}
             <div
               className="text-center rounded-lg px-2.5 py-1.5 min-w-[48px]"
-              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(201,168,76,0.3)' }}
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,176,106,0.3)' }}
             >
               <div className="text-xl sm:text-2xl font-bold text-white tabular-nums leading-none">
                 {pad(value)}
               </div>
-              <div className="text-xs mt-0.5" style={{ color: '#C9A84C' }}>{label}</div>
+              <div className="text-xs mt-0.5" style={{ color: '#D4B06A' }}>{label}</div>
             </div>
           </div>
         ))}
@@ -90,7 +90,7 @@ export default function FlashSaleBanner() {
       <Link
         to="/shop"
         className="flex-shrink-0 font-bold px-6 py-2.5 rounded-full text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 whitespace-nowrap"
-        style={{ background: 'linear-gradient(135deg, #C9A84C, #e0b84d)', color: '#082e2b' }}
+        style={{ background: 'linear-gradient(135deg, #D4B06A, #e0c47a)', color: '#3D0620' }}
       >
         Shop Now →
       </Link>
@@ -106,16 +106,16 @@ export default function FlashSaleBanner() {
             src={sale.banner_image_url}
             alt="Flash Sale"
             className="w-full block object-contain"
-            style={{ background: '#082e2b' }}
+            style={{ background: '#3D0620' }}
           />
-          <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)' }} />
+          <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)' }} />
         </div>
 
         {/* Countdown strip below the flyer */}
-        <div style={{ background: '#082e2b' }}>
-          <div className="h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)' }} />
+        <div style={{ background: '#3D0620' }}>
+          <div className="h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)' }} />
           {countdown}
-          <div className="h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)' }} />
+          <div className="h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)' }} />
         </div>
       </div>
     );
@@ -125,10 +125,10 @@ export default function FlashSaleBanner() {
     <div className="relative overflow-hidden">
       <div
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, #082e2b 0%, #0D4A47 50%, #082e2b 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #3D0620 0%, #7A0F3D 50%, #3D0620 100%)' }}
       />
-      <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)' }} />
-      <div className="absolute bottom-0 inset-x-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)' }} />
+      <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)' }} />
+      <div className="absolute bottom-0 inset-x-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)' }} />
       <div className="relative z-10">
         {countdown}
       </div>

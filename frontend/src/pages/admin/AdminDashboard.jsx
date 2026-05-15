@@ -37,25 +37,25 @@ function AdminLayout({ children }) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-full w-56 bg-teal-600 text-white flex flex-col z-30 transition-transform duration-300
+          fixed top-0 left-0 h-full w-56 bg-burgundy-600 text-white flex flex-col z-30 transition-transform duration-300
           lg:static lg:translate-x-0 lg:flex-shrink-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="p-5 border-b border-teal-500 flex items-center justify-between">
+        <div className="p-5 border-b border-burgundy-500 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-sm">N</span>
             </div>
             <div>
               <p className="font-bold text-sm leading-tight">Nora Hair Line</p>
-              <p className="text-teal-200 text-xs italic">Admin</p>
+              <p className="text-burgundy-200 text-xs italic">Admin</p>
             </div>
           </div>
           {/* Close button (mobile only) */}
           <button
             onClick={closeSidebar}
-            className="lg:hidden text-teal-200 hover:text-white p-1"
+            className="lg:hidden text-burgundy-200 hover:text-white p-1"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -64,7 +64,7 @@ function AdminLayout({ children }) {
         </div>
 
         <nav className="p-3 flex-1">
-          <p className="text-teal-300 text-xs uppercase tracking-wider font-medium px-3 mb-2">Menu</p>
+          <p className="text-burgundy-300 text-xs uppercase tracking-wider font-medium px-3 mb-2">Menu</p>
           {NAV_ITEMS.map(({ to, icon, label }) => {
             const active = location.pathname === to || (to === '/admin/products' && location.pathname.startsWith('/admin/products/') && to !== '/admin/products/new');
             return (
@@ -74,8 +74,8 @@ function AdminLayout({ children }) {
                 onClick={closeSidebar}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm mb-1 transition-colors ${
                   active
-                    ? 'bg-teal-500 text-white font-semibold'
-                    : 'text-teal-100 hover:bg-teal-500 hover:text-white'
+                    ? 'bg-burgundy-500 text-white font-semibold'
+                    : 'text-burgundy-100 hover:bg-burgundy-500 hover:text-white'
                 }`}
               >
                 <span>{icon}</span>
@@ -85,13 +85,13 @@ function AdminLayout({ children }) {
           })}
         </nav>
 
-        <div className="p-3 border-t border-teal-500">
+        <div className="p-3 border-t border-burgundy-500">
           <div className="px-3 py-2 mb-2">
-            <p className="text-teal-200 text-xs truncate">{admin?.email}</p>
+            <p className="text-burgundy-200 text-xs truncate">{admin?.email}</p>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-teal-100 hover:bg-red-500 hover:text-white transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-burgundy-100 hover:bg-red-500 hover:text-white transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -102,7 +102,7 @@ function AdminLayout({ children }) {
             to="/"
             target="_blank"
             onClick={closeSidebar}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-teal-100 hover:bg-teal-500 hover:text-white transition-colors mt-1"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-burgundy-100 hover:bg-burgundy-500 hover:text-white transition-colors mt-1"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -118,7 +118,7 @@ function AdminLayout({ children }) {
         <header className="lg:hidden flex items-center gap-3 bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-gray-600 hover:text-teal-600 p-1"
+            className="text-gray-600 hover:text-burgundy-600 p-1"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -128,7 +128,7 @@ function AdminLayout({ children }) {
             <div className="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center">
               <span className="text-white font-bold text-xs">N</span>
             </div>
-            <span className="font-bold text-teal-700 text-sm">Nora Hair Line</span>
+            <span className="font-bold text-burgundy-700 text-sm">Nora Hair Line</span>
           </div>
         </header>
 
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
                 <p className="text-gray-500 text-sm mb-1">Total Products</p>
-                <p className="text-3xl font-bold text-teal-700">{stats.total}</p>
+                <p className="text-3xl font-bold text-burgundy-700">{stats.total}</p>
               </div>
               <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
                 <p className="text-gray-500 text-sm mb-1">Available</p>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-teal-500 rounded-full transition-all duration-700"
+                            className="h-full bg-burgundy-500 rounded-full transition-all duration-700"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 to="/admin/products/new"
-                className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 px-5 rounded-full text-sm transition-colors"
+                className="flex items-center gap-2 bg-burgundy-500 hover:bg-burgundy-600 text-white font-semibold py-2.5 px-5 rounded-full text-sm transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
               </Link>
               <Link
                 to="/admin/products"
-                className="flex items-center gap-2 border border-teal-500 text-teal-600 hover:bg-teal-50 font-semibold py-2.5 px-5 rounded-full text-sm transition-colors"
+                className="flex items-center gap-2 border border-burgundy-500 text-burgundy-600 hover:bg-burgundy-50 font-semibold py-2.5 px-5 rounded-full text-sm transition-colors"
               >
                 View All Products
               </Link>

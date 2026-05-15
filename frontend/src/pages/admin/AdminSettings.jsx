@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { AdminLayout } from './AdminDashboard';
 import { changePassword, getAdminFlashSale, updateFlashSale } from '../../api';
@@ -105,8 +105,8 @@ export default function AdminSettings() {
           <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
             <h2 className="text-base font-semibold text-gray-800 mb-4">Account Info</h2>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-teal-700 font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-burgundy-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-burgundy-700 font-bold text-sm">
                   {admin?.email?.[0]?.toUpperCase()}
                 </span>
               </div>
@@ -150,7 +150,7 @@ export default function AdminSettings() {
                   value={form.currentPassword}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500"
                   placeholder="Enter current password"
                 />
               </div>
@@ -166,7 +166,7 @@ export default function AdminSettings() {
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500"
                   placeholder="At least 6 characters"
                 />
               </div>
@@ -181,7 +181,7 @@ export default function AdminSettings() {
                   value={form.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500"
                   placeholder="Repeat new password"
                 />
               </div>
@@ -189,7 +189,7 @@ export default function AdminSettings() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-teal-500 hover:bg-teal-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-burgundy-500 hover:bg-burgundy-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -245,7 +245,7 @@ export default function AdminSettings() {
                   <button
                     type="button"
                     onClick={() => setFlashForm(prev => ({ ...prev, active: !prev.active }))}
-                    className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none ${flashForm.active ? 'bg-teal-500' : 'bg-gray-200'}`}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none ${flashForm.active ? 'bg-burgundy-500' : 'bg-gray-200'}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${flashForm.active ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
@@ -260,7 +260,7 @@ export default function AdminSettings() {
                     type="datetime-local"
                     value={flashForm.end_date}
                     onChange={e => setFlashForm(prev => ({ ...prev, end_date: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500"
                   />
                   <p className="text-xs text-gray-400 mt-1">Banner hides automatically when this time passes</p>
                 </div>
@@ -310,7 +310,7 @@ export default function AdminSettings() {
                       reader.onload = ev => setBannerPreview(ev.target.result);
                       reader.readAsDataURL(file);
                     }}
-                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-burgundy-50 file:text-burgundy-700 hover:file:bg-burgundy-100 cursor-pointer"
                   />
                   <p className="text-xs text-gray-400 mt-1">Recommended: 1200×400px landscape. Stored in Cloudinary.</p>
                 </div>
@@ -320,7 +320,7 @@ export default function AdminSettings() {
                   type="button"
                   onClick={handleSaveFlashSale}
                   disabled={flashSaving}
-                  className="w-full bg-teal-500 hover:bg-teal-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-burgundy-500 hover:bg-burgundy-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
                 >
                   {flashSaving ? (
                     <>
@@ -340,3 +340,4 @@ export default function AdminSettings() {
     </AdminLayout>
   );
 }
+

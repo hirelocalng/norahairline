@@ -6,7 +6,7 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-ivory flex flex-col items-center justify-center px-4">
         <div className="text-6xl mb-4">🛒</div>
         <h2 className="text-2xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
         <p className="text-gray-400 mb-8">Browse our collection and add items to your cart.</p>
@@ -16,7 +16,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-ivory py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Your Cart</h1>
@@ -31,7 +31,7 @@ export default function Cart() {
           </div>
           <Link
             to="/checkout"
-            className="flex-1 max-w-xs text-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-full transition-colors text-sm"
+            className="flex-1 max-w-xs text-center bg-burgundy-500 hover:bg-burgundy-700 text-white font-semibold py-3 px-6 rounded-full transition-colors text-sm"
           >
             Proceed to Checkout
           </Link>
@@ -43,12 +43,12 @@ export default function Cart() {
             {items.map(item => (
               <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex gap-4 items-center">
                 {/* Image */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-teal-50 flex-shrink-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-burgundy-50 flex-shrink-0">
                   {item.primary_image ? (
                     <img src={item.primary_image} alt={item.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 text-burgundy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
@@ -67,14 +67,14 @@ export default function Cart() {
                   <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
                     <button
                       onClick={() => updateQty(item.id, item.quantity - 1)}
-                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-teal-600 font-bold text-lg leading-none"
+                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-burgundy-600 font-bold text-lg leading-none"
                     >
                       −
                     </button>
                     <span className="w-6 text-center text-sm font-semibold text-gray-800">{item.quantity}</span>
                     <button
                       onClick={() => updateQty(item.id, item.quantity + 1)}
-                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-teal-600 font-bold text-lg leading-none"
+                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-burgundy-600 font-bold text-lg leading-none"
                     >
                       +
                     </button>
@@ -111,13 +111,13 @@ export default function Cart() {
               </div>
               <Link
                 to="/checkout"
-                className="block text-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-full transition-colors"
+                className="block text-center bg-burgundy-500 hover:bg-burgundy-700 text-white font-semibold py-3 px-6 rounded-full transition-colors"
               >
                 Proceed to Checkout
               </Link>
               <Link
                 to="/shop"
-                className="block text-center text-teal-600 hover:text-teal-800 text-sm font-medium mt-3 transition-colors"
+                className="block text-center text-burgundy-600 hover:text-burgundy-800 text-sm font-medium mt-3 transition-colors"
               >
                 ← Continue Shopping
               </Link>

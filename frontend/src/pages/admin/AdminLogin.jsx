@@ -25,7 +25,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-900 via-teal-700 to-teal-500 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-burgundy-900 via-burgundy-700 to-burgundy-500 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -38,7 +38,7 @@ export default function AdminLogin() {
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-xl font-bold text-teal-700 mb-1">Welcome back</h2>
+          <h2 className="text-xl font-bold text-burgundy-700 mb-1">Welcome back</h2>
           <p className="text-gray-500 text-sm mb-6">Sign in to manage your products</p>
 
           {error && (
@@ -58,7 +58,7 @@ export default function AdminLogin() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100 transition-all"
                 placeholder="norahairline@gmail.com"
               />
             </div>
@@ -69,7 +69,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100 transition-all"
                 placeholder="Enter your password"
               />
             </div>
@@ -77,7 +77,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-teal-500 hover:bg-teal-600 disabled:bg-teal-300 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-burgundy-500 hover:bg-burgundy-700 disabled:bg-burgundy-300 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2"
             >
               {loading ? (
                 <>

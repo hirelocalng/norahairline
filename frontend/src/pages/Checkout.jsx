@@ -50,7 +50,7 @@ export default function Checkout() {
 
   if (items.length === 0 && !done) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-ivory flex flex-col items-center justify-center px-4">
         <div className="text-6xl mb-4">🛒</div>
         <h2 className="text-2xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
         <Link to="/shop" className="btn-teal mt-4">Shop Now</Link>
@@ -159,9 +159,9 @@ export default function Checkout() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-center">
+      <div className="min-h-screen bg-ivory flex flex-col items-center justify-center px-4 text-center">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold text-teal-700 mb-2">Order Placed!</h2>
+        <h2 className="text-2xl font-bold text-burgundy-700 mb-2">Order Placed!</h2>
         <p className="text-gray-500 mb-8 max-w-sm">Thank you! Your order has been received. We'll confirm availability and arrange delivery for you.</p>
         <Link to="/shop" className="btn-teal">Continue Shopping</Link>
       </div>
@@ -169,10 +169,10 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-ivory py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <Link to="/cart" className="text-teal-600 hover:text-teal-800 text-sm font-medium">← Back to Cart</Link>
+          <Link to="/cart" className="text-burgundy-600 hover:text-burgundy-800 text-sm font-medium">← Back to Cart</Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">Checkout</h1>
         </div>
 
@@ -186,7 +186,7 @@ export default function Checkout() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
                   <input
                     name="name" value={form.name} onChange={handleChange}
-                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${errors.name ? 'border-red-400' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500 ${errors.name ? 'border-red-400' : 'border-gray-200'}`}
                     placeholder="e.g. Amara Johnson"
                   />
                   {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
@@ -196,7 +196,7 @@ export default function Checkout() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
                   <input
                     name="phone" value={form.phone} onChange={handleChange}
-                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${errors.phone ? 'border-red-400' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500 ${errors.phone ? 'border-red-400' : 'border-gray-200'}`}
                     placeholder="e.g. 08012345678"
                   />
                   {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
@@ -208,7 +208,7 @@ export default function Checkout() {
                   </label>
                   <input
                     name="email" value={form.email} onChange={handleChange} type="email"
-                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${errors.email ? 'border-red-400' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500 ${errors.email ? 'border-red-400' : 'border-gray-200'}`}
                     placeholder="e.g. amara@example.com"
                   />
                   {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
@@ -218,7 +218,7 @@ export default function Checkout() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Delivery Address *</label>
                   <textarea
                     name="address" value={form.address} onChange={handleChange} rows={3}
-                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 resize-none ${errors.address ? 'border-red-400' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500 resize-none ${errors.address ? 'border-red-400' : 'border-gray-200'}`}
                     placeholder="House number, street, area..."
                   />
                   {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
@@ -228,7 +228,7 @@ export default function Checkout() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
                   <select
                     name="state" value={form.state} onChange={handleChange}
-                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white ${errors.state ? 'border-red-400' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500 bg-white ${errors.state ? 'border-red-400' : 'border-gray-200'}`}
                   >
                     <option value="">Select your state</option>
                     {NIGERIA_STATES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -273,16 +273,16 @@ export default function Checkout() {
                   type="button"
                   onClick={handleKorapay}
                   disabled={submitting}
-                  className="w-full flex items-center gap-4 bg-teal-50 hover:bg-teal-100 border-2 border-teal-200 hover:border-teal-400 text-left px-5 py-4 rounded-2xl transition-all disabled:opacity-60"
+                  className="w-full flex items-center gap-4 bg-burgundy-50 hover:bg-burgundy-100 border-2 border-burgundy-200 hover:border-burgundy-400 text-left px-5 py-4 rounded-2xl transition-all disabled:opacity-60"
                 >
-                  <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-burgundy-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-teal-800">Pay Online with Korapay</p>
-                    <p className="text-xs text-teal-600 mt-0.5">Pay securely with card, bank transfer or USSD</p>
+                    <p className="font-semibold text-burgundy-800">Pay Online with Korapay</p>
+                    <p className="text-xs text-burgundy-600 mt-0.5">Pay securely with card, bank transfer or USSD</p>
                   </div>
                 </button>
               </div>

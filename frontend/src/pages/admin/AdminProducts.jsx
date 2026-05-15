@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAdminProducts, deleteProduct, toggleAvailability } from '../../api';
 import { AdminLayout } from './AdminDashboard';
@@ -58,7 +58,7 @@ export default function AdminProducts() {
           </div>
           <Link
             to="/admin/products/new"
-            className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 px-5 rounded-full text-sm transition-colors"
+            className="flex items-center gap-2 bg-burgundy-500 hover:bg-burgundy-600 text-white font-semibold py-2.5 px-5 rounded-full text-sm transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -77,7 +77,7 @@ export default function AdminProducts() {
             placeholder="Search products..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-teal-500 bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-burgundy-500 bg-white"
           />
         </div>
 
@@ -128,8 +128,8 @@ export default function AdminProducts() {
                     {product.primary_image ? (
                       <img src={product.primary_image} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-teal-50">
-                        <span className="text-teal-400 text-xs">No img</span>
+                      <div className="w-full h-full flex items-center justify-center bg-burgundy-50">
+                        <span className="text-burgundy-400 text-xs">No img</span>
                       </div>
                     )}
                   </div>
@@ -141,7 +141,7 @@ export default function AdminProducts() {
 
                 {/* Category */}
                 <div className="col-span-2">
-                  <span className="text-xs bg-teal-50 text-teal-700 border border-teal-100 px-2 py-1 rounded-full">{product.category}</span>
+                  <span className="text-xs bg-burgundy-50 text-burgundy-700 border border-burgundy-100 px-2 py-1 rounded-full">{product.category}</span>
                 </div>
 
                 {/* Price */}
@@ -164,7 +164,7 @@ export default function AdminProducts() {
                 <div className="col-span-2 flex items-center justify-end gap-2">
                   <Link
                     to={`/admin/products/${product.id}/edit`}
-                    className="text-xs font-medium text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-full transition-colors"
+                    className="text-xs font-medium text-burgundy-600 hover:text-burgundy-800 bg-burgundy-50 hover:bg-burgundy-100 px-3 py-1.5 rounded-full transition-colors"
                   >
                     Edit
                   </Link>
@@ -214,3 +214,4 @@ export default function AdminProducts() {
     </AdminLayout>
   );
 }
+

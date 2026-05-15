@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminDashboard';
 import api from '../../api';
 
@@ -93,7 +93,7 @@ export default function AdminOrders() {
                         {order.payment_method === 'whatsapp' ? (
                           <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">WhatsApp</span>
                         ) : (
-                          <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded-full">Korapay</span>
+                          <span className="text-xs bg-burgundy-50 text-burgundy-700 border border-burgundy-200 px-2 py-0.5 rounded-full">Korapay</span>
                         )}
                       </div>
                     </div>
@@ -104,7 +104,7 @@ export default function AdminOrders() {
                         onChange={e => { e.stopPropagation(); handleStatusChange(order.id, e.target.value); }}
                         onClick={e => e.stopPropagation()}
                         disabled={updating === order.id}
-                        className={`text-xs font-semibold border rounded-full px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400 ${STATUS_COLORS[order.status] || ''} disabled:opacity-60`}
+                        className={`text-xs font-semibold border rounded-full px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-burgundy-400 ${STATUS_COLORS[order.status] || ''} disabled:opacity-60`}
                       >
                         {STATUS_OPTIONS.map(s => (
                           <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -160,3 +160,4 @@ export default function AdminOrders() {
     </AdminLayout>
   );
 }
+

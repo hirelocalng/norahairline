@@ -26,10 +26,10 @@ function ScrollToTop() {
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-teal-50">
+    <div className="min-h-screen flex items-center justify-center bg-ivory">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-teal-600">Loading...</p>
+        <div className="w-12 h-12 border-4 border-burgundy-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-burgundy-600">Loading...</p>
       </div>
     </div>
   );

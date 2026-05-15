@@ -59,97 +59,97 @@ export default function Home() {
       {/* ===== HERO SECTION ===== */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
 
-        {/* Layer 1: deep teal base + diagonal gradient */}
+        {/* Layer 1: deep plum base + diagonal gradient */}
         <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, #082e2b 0%, #0D4A47 45%, #0f5752 70%, #082e2b 100%)',
+          background: 'linear-gradient(135deg, #3D0620 0%, #7A0F3D 45%, #861445 70%, #3D0620 100%)',
         }} />
 
         {/* Layer 2: radial gold glow at centre */}
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse 75% 55% at 50% 50%, rgba(201,168,76,0.10) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 75% 55% at 50% 50%, rgba(212,176,106,0.10) 0%, transparent 70%)',
         }} />
 
         {/* Layer 3: subtle diamond grid pattern */}
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 2 L54 28 L28 54 L2 28 Z' fill='none' stroke='%23C9A84C' stroke-width='0.4' opacity='0.35'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 2 L54 28 L28 54 L2 28 Z' fill='none' stroke='%23D4B06A' stroke-width='0.4' opacity='0.35'/%3E%3C/svg%3E")`,
           backgroundSize: '56px 56px',
           opacity: 0.18,
         }} />
 
         {/* Layer 4: fine dot grid */}
         <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(201,168,76,0.55) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(212,176,106,0.55) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
           opacity: 0.12,
         }} />
 
         {/* Top + bottom gold edge lines */}
-        <div className="absolute top-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)', opacity: 0.5 }} />
-        <div className="absolute bottom-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C 30%, #C9A84C 70%, transparent)', opacity: 0.5 }} />
+        <div className="absolute top-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)', opacity: 0.5 }} />
+        <div className="absolute bottom-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)', opacity: 0.5 }} />
 
         {/* Large background diamond silhouette */}
-        <div className="absolute" style={{ width: '600px', height: '600px', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(201,168,76,0.07)', pointerEvents: 'none' }} />
-        <div className="absolute" style={{ width: '480px', height: '480px', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(201,168,76,0.06)', pointerEvents: 'none' }} />
+        <div className="absolute" style={{ width: '600px', height: '600px', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(212,176,106,0.07)', pointerEvents: 'none' }} />
+        <div className="absolute" style={{ width: '480px', height: '480px', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(212,176,106,0.06)', pointerEvents: 'none' }} />
 
         {/* Corner ornament — top left */}
         <div className="absolute top-5 left-5 opacity-70">
           <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="2" y1="2" x2="48" y2="2" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="2" y1="2" x2="2" y2="48" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="10" y1="10" x2="32" y2="10" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="10" y1="10" x2="10" y2="32" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="2" cy="2" r="2.5" fill="#C9A84C"/>
-            <circle cx="48" cy="2" r="1.2" fill="#C9A84C" opacity="0.5"/>
-            <circle cx="2" cy="48" r="1.2" fill="#C9A84C" opacity="0.5"/>
+            <line x1="2" y1="2" x2="48" y2="2" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="2" y1="2" x2="2" y2="48" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="10" y1="10" x2="32" y2="10" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <line x1="10" y1="10" x2="10" y2="32" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <circle cx="2" cy="2" r="2.5" fill="#D4B06A"/>
+            <circle cx="48" cy="2" r="1.2" fill="#D4B06A" opacity="0.5"/>
+            <circle cx="2" cy="48" r="1.2" fill="#D4B06A" opacity="0.5"/>
           </svg>
         </div>
 
         {/* Corner ornament — top right */}
         <div className="absolute top-5 right-5 opacity-70">
           <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="70" y1="2" x2="24" y2="2" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="70" y1="2" x2="70" y2="48" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="62" y1="10" x2="40" y2="10" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="62" y1="10" x2="62" y2="32" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="70" cy="2" r="2.5" fill="#C9A84C"/>
-            <circle cx="24" cy="2" r="1.2" fill="#C9A84C" opacity="0.5"/>
-            <circle cx="70" cy="48" r="1.2" fill="#C9A84C" opacity="0.5"/>
+            <line x1="70" y1="2" x2="24" y2="2" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="70" y1="2" x2="70" y2="48" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="62" y1="10" x2="40" y2="10" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <line x1="62" y1="10" x2="62" y2="32" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <circle cx="70" cy="2" r="2.5" fill="#D4B06A"/>
+            <circle cx="24" cy="2" r="1.2" fill="#D4B06A" opacity="0.5"/>
+            <circle cx="70" cy="48" r="1.2" fill="#D4B06A" opacity="0.5"/>
           </svg>
         </div>
 
         {/* Corner ornament — bottom left */}
         <div className="absolute bottom-5 left-5 opacity-70">
           <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="2" y1="70" x2="48" y2="70" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="2" y1="70" x2="2" y2="24" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="10" y1="62" x2="32" y2="62" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="10" y1="62" x2="10" y2="40" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="2" cy="70" r="2.5" fill="#C9A84C"/>
+            <line x1="2" y1="70" x2="48" y2="70" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="2" y1="70" x2="2" y2="24" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="10" y1="62" x2="32" y2="62" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <line x1="10" y1="62" x2="10" y2="40" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <circle cx="2" cy="70" r="2.5" fill="#D4B06A"/>
           </svg>
         </div>
 
         {/* Corner ornament — bottom right */}
         <div className="absolute bottom-5 right-5 opacity-70">
           <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="70" y1="70" x2="24" y2="70" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="70" y1="70" x2="70" y2="24" stroke="#C9A84C" strokeWidth="1.5"/>
-            <line x1="62" y1="62" x2="40" y2="62" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="62" y1="62" x2="62" y2="40" stroke="#C9A84C" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="70" cy="70" r="2.5" fill="#C9A84C"/>
+            <line x1="70" y1="70" x2="24" y2="70" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="70" y1="70" x2="70" y2="24" stroke="#D4B06A" strokeWidth="1.5"/>
+            <line x1="62" y1="62" x2="40" y2="62" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <line x1="62" y1="62" x2="62" y2="40" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
+            <circle cx="70" cy="70" r="2.5" fill="#D4B06A"/>
           </svg>
         </div>
 
         {/* Side flowing curves — desktop only */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden lg:block" style={{ opacity: 0.15 }}>
           <svg width="48" height="320" viewBox="0 0 48 320" fill="none">
-            <path d="M44 0 Q4 80 44 160 Q4 240 44 320" stroke="#C9A84C" strokeWidth="1.2"/>
-            <path d="M36 0 Q2 80 36 160 Q2 240 36 320" stroke="#C9A84C" strokeWidth="0.5"/>
+            <path d="M44 0 Q4 80 44 160 Q4 240 44 320" stroke="#D4B06A" strokeWidth="1.2"/>
+            <path d="M36 0 Q2 80 36 160 Q2 240 36 320" stroke="#D4B06A" strokeWidth="0.5"/>
           </svg>
         </div>
         <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block" style={{ opacity: 0.15 }}>
           <svg width="48" height="320" viewBox="0 0 48 320" fill="none">
-            <path d="M4 0 Q44 80 4 160 Q44 240 4 320" stroke="#C9A84C" strokeWidth="1.2"/>
-            <path d="M12 0 Q46 80 12 160 Q46 240 12 320" stroke="#C9A84C" strokeWidth="0.5"/>
+            <path d="M4 0 Q44 80 4 160 Q44 240 4 320" stroke="#D4B06A" strokeWidth="1.2"/>
+            <path d="M12 0 Q46 80 12 160 Q46 240 12 320" stroke="#D4B06A" strokeWidth="0.5"/>
           </svg>
         </div>
 
@@ -158,11 +158,11 @@ export default function Home() {
 
           {/* Top ornament */}
           <div className="flex items-center justify-center gap-3 mb-7">
-            <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to right, transparent, #C9A84C)' }} />
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="#C9A84C">
+            <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to right, transparent, #D4B06A)' }} />
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="#D4B06A">
               <path d="M9 0 L11.2 6.8 L18 9 L11.2 11.2 L9 18 L6.8 11.2 L0 9 L6.8 6.8 Z"/>
             </svg>
-            <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to left, transparent, #C9A84C)' }} />
+            <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to left, transparent, #D4B06A)' }} />
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold text-white mb-5 leading-tight" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}>
@@ -171,20 +171,20 @@ export default function Home() {
 
           {/* Gold rule with centre diamond */}
           <div className="flex items-center justify-center gap-0 mb-5">
-            <div className="h-px flex-1 max-w-[80px]" style={{ background: '#C9A84C', opacity: 0.6 }} />
-            <div className="mx-2 w-2.5 h-2.5 rotate-45" style={{ background: '#C9A84C' }} />
-            <div className="h-px w-8" style={{ background: '#C9A84C', opacity: 0.4 }} />
-            <div className="mx-2 w-1.5 h-1.5 rotate-45" style={{ background: '#C9A84C', opacity: 0.5 }} />
-            <div className="h-px w-8" style={{ background: '#C9A84C', opacity: 0.4 }} />
-            <div className="mx-2 w-2.5 h-2.5 rotate-45" style={{ background: '#C9A84C' }} />
-            <div className="h-px flex-1 max-w-[80px]" style={{ background: '#C9A84C', opacity: 0.6 }} />
+            <div className="h-px flex-1 max-w-[80px]" style={{ background: '#D4B06A', opacity: 0.6 }} />
+            <div className="mx-2 w-2.5 h-2.5 rotate-45" style={{ background: '#D4B06A' }} />
+            <div className="h-px w-8" style={{ background: '#D4B06A', opacity: 0.4 }} />
+            <div className="mx-2 w-1.5 h-1.5 rotate-45" style={{ background: '#D4B06A', opacity: 0.5 }} />
+            <div className="h-px w-8" style={{ background: '#D4B06A', opacity: 0.4 }} />
+            <div className="mx-2 w-2.5 h-2.5 rotate-45" style={{ background: '#D4B06A' }} />
+            <div className="h-px flex-1 max-w-[80px]" style={{ background: '#D4B06A', opacity: 0.6 }} />
           </div>
 
-          <p className="text-lg md:text-3xl italic font-serif mb-7" style={{ color: '#C9A84C', textShadow: '0 1px 12px rgba(201,168,76,0.3)' }}>
+          <p className="text-lg md:text-3xl italic font-serif mb-7" style={{ color: '#D4B06A', textShadow: '0 1px 12px rgba(212,176,106,0.3)' }}>
             "Luxury for less..."
           </p>
 
-          <p className="text-teal-100 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed" style={{ opacity: 0.9 }}>
+          <p className="text-burgundy-100 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed" style={{ opacity: 0.9 }}>
             Discover premium quality wigs, frontals, bundles and more — crafted to make you look and feel your most confident.
           </p>
 
@@ -219,14 +219,14 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg className="w-6 h-6" style={{ color: '#C9A84C' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6" style={{ color: '#D4B06A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
       </section>
 
       {/* ===== CATEGORIES SECTION ===== */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-ivory">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="section-heading">Shop by Category</h2>
@@ -249,7 +249,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="p-3">
-                  <h3 className="font-semibold text-teal-700 text-sm group-hover:text-teal-900 mb-0.5">{cat.name}</h3>
+                  <h3 className="font-semibold text-burgundy-700 text-sm group-hover:text-burgundy-900 mb-0.5">{cat.name}</h3>
                   <p className="text-gray-400 text-xs">{cat.desc}</p>
                 </div>
               </Link>
@@ -259,7 +259,7 @@ export default function Home() {
       </section>
 
       {/* ===== FEATURED PRODUCTS ===== */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="section-heading">Featured Products</h2>
@@ -302,7 +302,7 @@ export default function Home() {
       </section>
 
       {/* ===== ABOUT SNIPPET ===== */}
-      <section className="py-16 bg-teal-500 text-white">
+      <section className="py-16 bg-burgundy-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -311,10 +311,10 @@ export default function Home() {
                 Premium Hair, Accessible Prices
               </h2>
               <div className="w-16 h-1 bg-gold-400 mb-6"></div>
-              <p className="text-teal-100 text-base leading-relaxed mb-4">
+              <p className="text-burgundy-100 text-base leading-relaxed mb-4">
                 At Nora Hair Line, we believe that every woman deserves to look and feel beautiful without breaking the bank. We source the finest quality hair products — from silky straight to luscious curls — and make them available to you at prices that won't empty your wallet.
               </p>
-              <p className="text-teal-100 text-base leading-relaxed mb-8">
+              <p className="text-burgundy-100 text-base leading-relaxed mb-8">
                 Located at Trade Fair Complex in Lagos, we serve customers across Nigeria and beyond. Our collection is carefully curated to meet every hair need and style preference.
               </p>
               <Link to="/about" className="btn-primary inline-block">
@@ -330,9 +330,9 @@ export default function Home() {
                 { number: '24/7', label: 'WhatsApp Support' },
                 { number: '🇳🇬', label: 'Lagos, Nigeria' },
               ].map((stat, i) => (
-                <div key={i} className="bg-teal-400/40 rounded-2xl p-6 text-center border border-teal-300/30">
+                <div key={i} className="bg-burgundy-400/40 rounded-2xl p-6 text-center border border-burgundy-300/30">
                   <div className="text-3xl font-bold text-gold-300 mb-2">{stat.number}</div>
-                  <div className="text-teal-100 text-sm">{stat.label}</div>
+                  <div className="text-burgundy-100 text-sm">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -344,7 +344,7 @@ export default function Home() {
       <FlashSaleBanner />
 
       {/* ===== CONTACT / LOCATION SECTION ===== */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-ivory">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="section-heading">Visit or Contact Us</h2>
@@ -353,14 +353,14 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {/* Location */}
-            <div className="bg-teal-50 rounded-2xl p-6 text-center">
-              <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-burgundy-50 rounded-2xl p-6 text-center">
+              <div className="w-12 h-12 bg-burgundy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-burgundy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-teal-700 mb-2">Our Location</h3>
+              <h3 className="font-semibold text-burgundy-700 mb-2">Our Location</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
                 No 5 Veet Gold Plaza,<br />
                 Trade Fair, Badagry Express Way,<br />

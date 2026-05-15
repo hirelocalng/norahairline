@@ -11,7 +11,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-teal-500 shadow-lg sticky top-0 z-50">
+    <nav className="bg-burgundy-500 shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
@@ -28,7 +28,7 @@ export default function Navbar() {
                 end={to === '/'}
                 className={({ isActive }) =>
                   `px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
-                    isActive ? 'bg-gold-500 text-white' : 'text-white hover:bg-teal-400'
+                    isActive ? 'bg-gold-500 text-white' : 'text-white hover:bg-burgundy-400'
                   }`
                 }
               >
@@ -37,7 +37,7 @@ export default function Navbar() {
             ))}
 
             {/* Cart icon */}
-            <Link to="/cart" className="relative ml-1 sm:ml-2 p-1.5 sm:p-2 text-white hover:bg-teal-400 rounded-full transition-colors">
+            <Link to="/cart" className="relative ml-1 sm:ml-2 p-1.5 sm:p-2 text-white hover:bg-burgundy-400 rounded-full transition-colors">
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>

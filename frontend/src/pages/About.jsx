@@ -4,7 +4,7 @@ export default function About() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-teal-900 via-teal-700 to-teal-500 py-20 text-center relative overflow-hidden">
+      <div className="bg-gradient-to-br from-burgundy-900 via-burgundy-700 to-burgundy-500 py-20 text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-48 h-48 rounded-full border-2 border-gold-400"></div>
           <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full border-2 border-gold-400"></div>
@@ -19,7 +19,7 @@ export default function About() {
       </div>
 
       {/* Our Story */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-ivory">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="section-heading">Our Story</h2>
@@ -28,7 +28,7 @@ export default function About() {
 
           <div className="prose max-w-none text-gray-700 leading-relaxed space-y-5 text-base">
             <p>
-              Welcome to <strong className="text-teal-700">Nora Hair Line</strong> — your destination for premium quality hair products at prices that celebrate every woman, not just a few. We were founded with one simple belief: <em className="text-gold-600">luxury should be accessible.</em>
+              Welcome to <strong className="text-burgundy-700">Nora Hair Line</strong> — your destination for premium quality hair products at prices that celebrate every woman, not just a few. We were founded with one simple belief: <em className="text-gold-600">luxury should be accessible.</em>
             </p>
             <p>
               Based in the heart of Lagos at the Trade Fair Complex, we started as a small stall with a big dream — to give Nigerian women access to the same quality of hair extensions, wigs, and accessories that were once only available at exorbitant prices. Today, we proudly serve customers across Lagos and ship nationwide.
@@ -44,7 +44,7 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="py-14 bg-gray-50">
+      <section className="py-14 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="section-heading">Why Choose Us</h2>
@@ -86,7 +86,7 @@ export default function About() {
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-gold-200 transition-all">
                 <div className="text-3xl mb-3">{item.icon}</div>
-                <h3 className="font-semibold text-teal-700 mb-2">{item.title}</h3>
+                <h3 className="font-semibold text-burgundy-700 mb-2">{item.title}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
@@ -95,7 +95,7 @@ export default function About() {
       </section>
 
       {/* Location & Contact */}
-      <section className="py-16 bg-teal-500 text-white">
+      <section className="py-16 bg-burgundy-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">Find Us</h2>
@@ -105,7 +105,7 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center max-w-4xl mx-auto">
             <div className="space-y-5">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-teal-400 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-burgundy-400 rounded-full flex items-center justify-center flex-shrink-0">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -147,8 +147,8 @@ export default function About() {
             </div>
 
             <div className="text-center">
-              <div className="bg-teal-400/30 rounded-2xl p-8 border border-teal-300/40">
-                <p className="text-teal-100 text-sm mb-5">Ready to find your perfect hair?</p>
+              <div className="bg-burgundy-400/30 rounded-2xl p-8 border border-burgundy-300/40">
+                <p className="text-burgundy-100 text-sm mb-5">Ready to find your perfect hair?</p>
                 <div className="space-y-3">
                   <a
                     href="https://wa.me/2348038707795"

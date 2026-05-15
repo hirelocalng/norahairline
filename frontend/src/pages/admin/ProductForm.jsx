@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { createProduct, updateProduct, getAdminProduct } from '../../api';
 import { AdminLayout } from './AdminDashboard';
@@ -131,7 +131,7 @@ export default function ProductForm() {
   if (fetchLoading) return (
     <AdminLayout>
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-burgundy-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     </AdminLayout>
   );
@@ -169,7 +169,7 @@ export default function ProductForm() {
                   value={form.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100"
                   placeholder="e.g. Brazilian Body Wave Wig"
                 />
               </div>
@@ -188,7 +188,7 @@ export default function ProductForm() {
                     required
                     min="0"
                     step="0.01"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100"
                     placeholder="25000"
                   />
                 </div>
@@ -204,7 +204,7 @@ export default function ProductForm() {
                     onChange={handleChange}
                     min="0"
                     step="0.01"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100"
                     placeholder="30000"
                   />
                 </div>
@@ -223,7 +223,7 @@ export default function ProductForm() {
                   value={form.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 bg-white"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100 bg-white"
                 >
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -237,7 +237,7 @@ export default function ProductForm() {
                   value={form.description}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 resize-none"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100 resize-none"
                   placeholder="Describe the product — texture, length, care instructions..."
                 />
               </div>
@@ -303,7 +303,7 @@ export default function ProductForm() {
                 <div className="flex flex-wrap gap-3">
                   {previewUrls.map((url, i) => (
                     <div key={i} className="relative group">
-                      <img src={url} alt="Preview" className="w-20 h-20 object-cover rounded-xl border-2 border-teal-200" />
+                      <img src={url} alt="Preview" className="w-20 h-20 object-cover rounded-xl border-2 border-burgundy-200" />
                       {i === 0 && !isEdit && (
                         <span className="absolute -top-1 -right-1 bg-gold-500 text-white text-xs px-1.5 py-0.5 rounded-full">★</span>
                       )}
@@ -321,13 +321,13 @@ export default function ProductForm() {
             )}
 
             {/* Upload area */}
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-8 cursor-pointer hover:border-teal-400 hover:bg-teal-50/30 transition-all">
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-8 cursor-pointer hover:border-burgundy-400 hover:bg-burgundy-50/30 transition-all">
               <svg className="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <p className="text-sm text-gray-600 font-medium">Click to upload photos</p>
               <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP — up to 10MB each, max 10 files</p>
-              <p className="text-xs text-teal-500 mt-1">★ First photo becomes the primary image</p>
+              <p className="text-xs text-burgundy-500 mt-1">★ First photo becomes the primary image</p>
               <input
                 type="file"
                 accept="image/*"
@@ -384,7 +384,7 @@ export default function ProductForm() {
                 <video
                   src={newVideoPreviewUrl}
                   controls
-                  className="w-full max-w-sm rounded-xl border border-teal-200"
+                  className="w-full max-w-sm rounded-xl border border-burgundy-200"
                 />
                 <button
                   type="button"
@@ -407,7 +407,7 @@ export default function ProductForm() {
 
             {/* Upload area — hide if video already selected */}
             {!newVideoFile && (
-              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-teal-400 hover:bg-teal-50/30 transition-all">
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-burgundy-400 hover:bg-burgundy-50/30 transition-all">
                 <svg className="w-9 h-9 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                 </svg>
@@ -441,7 +441,7 @@ export default function ProductForm() {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-300 text-white font-semibold py-3 px-6 rounded-full transition-colors"
+              className="flex items-center gap-2 bg-burgundy-500 hover:bg-burgundy-600 disabled:bg-burgundy-300 text-white font-semibold py-3 px-6 rounded-full transition-colors"
             >
               {loading ? (
                 <>
@@ -470,3 +470,4 @@ export default function ProductForm() {
     </AdminLayout>
   );
 }
+

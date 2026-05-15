@@ -50,9 +50,9 @@ export default function Shop() {
     : products;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ivory">
       {/* Page Header */}
-      <div className="bg-teal-500 py-12">
+      <div className="bg-burgundy-500 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">Our Collection</h1>
           <p className="text-gold-300 italic">Luxury for less...</p>
@@ -72,7 +72,7 @@ export default function Shop() {
               placeholder="Search products..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-burgundy-500 focus:ring-1 focus:ring-burgundy-500 bg-white"
             />
           </div>
 
@@ -84,8 +84,8 @@ export default function Shop() {
                 onClick={() => handleCategory(cat)}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-all duration-200 ${
                   activeCategory === cat
-                    ? 'bg-teal-500 text-white border-teal-500'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-teal-400 hover:text-teal-600'
+                    ? 'bg-burgundy-500 text-white border-burgundy-500'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-burgundy-400 hover:text-burgundy-600'
                 }`}
               >
                 {cat}

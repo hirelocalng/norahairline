@@ -9,25 +9,26 @@
 
   body {
     font-family: 'Georgia', serif;
-    color: #1a1a1a;
+    color: #1A1A1A;
+    background-color: #FAF7F2;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-gold-500 hover:bg-gold-600 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+    @apply bg-burgundy-500 hover:bg-burgundy-700 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
   }
 
   .btn-teal {
-    @apply bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+    @apply bg-burgundy-500 hover:bg-burgundy-700 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
   }
 
   .btn-outline {
-    @apply border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-white font-semibold py-3 px-6 rounded-full transition-all duration-300;
+    @apply border-2 border-burgundy-500 text-burgundy-600 bg-cream hover:bg-burgundy-500 hover:text-white font-semibold py-3 px-6 rounded-full transition-all duration-300;
   }
 
   .section-heading {
-    @apply text-3xl md:text-4xl font-serif font-bold text-teal-500;
+    @apply text-3xl md:text-4xl font-serif font-bold text-burgundy-500;
   }
 
   .gold-divider {
@@ -39,7 +40,7 @@
   }
 
   .category-badge {
-    @apply text-xs font-semibold px-3 py-1 rounded-full bg-gold-50 text-gold-600 border border-gold-200;
+    @apply text-xs font-semibold px-3 py-1 rounded-full bg-gold-50 text-burgundy-600 border border-gold-200;
   }
 }
 
@@ -55,14 +56,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #F4E8D7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0D4A47;
+  background: #7A0F3D;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #C9A84C;
+  background: #D4B06A;
 }
