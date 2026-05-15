@@ -49,7 +49,7 @@ export default function AdminSettings() {
       if (flashForm.clearBanner) fd.append('clearBanner', 'true');
       const res = await updateFlashSale(fd);
       setFlashSale(res.data);
-      setFlashForm(prev => ({ ...prev, bannerFile: null, clearBanner: false }));
+      setFlashForm(prev => ({ ...prev, active: res.data.active ?? prev.active, end_date: toLocalDatetime(res.data.end_date), bannerFile: null, clearBanner: false }));
       setBannerPreview(null);
       setFlashSuccess('Flash sale settings saved');
     } catch (err) {

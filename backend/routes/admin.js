@@ -428,6 +428,9 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
     const { active, end_date, clearBanner } = req.body;
     const bannerFile = req.file;
 
+    // Ensure the settings row always exists before updating
+    await pool.query(`INSERT INTO flash_sale_settings (id, active) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);
+
     const current = await pool.query('SELECT active, banner_image_public_id FROM flash_sale_settings WHERE id = 1');
     const currentPublicId = current.rows[0]?.banner_image_public_id;
     const wasActive = current.rows[0]?.active ?? false;
