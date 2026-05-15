@@ -11,6 +11,47 @@ const pool = require('./db');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+async function runMigrations() {
+  const client = await pool.connect();
+  try {
+    // Ensure flash_sale_settings table exists with full schema
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS flash_sale_settings (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        active BOOLEAN DEFAULT false,
+        end_date TIMESTAMPTZ,
+        banner_image_url VARCHAR(500),
+        banner_image_public_id VARCHAR(500),
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT flash_sale_single_row CHECK (id = 1)
+      )
+    `);
+    // Add each column individually in case the table predates a column
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT false`);
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS end_date TIMESTAMPTZ`);
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_url VARCHAR(500)`);
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_public_id VARCHAR(500)`);
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
+    // Seed the single config row
+    await client.query(`INSERT INTO flash_sale_settings (id, active) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);
+
+    // Products: columns added after initial schema
+    await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)`);
+    await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS video_public_id VARCHAR(500)`);
+    await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS original_price DECIMAL(10,2) DEFAULT NULL`);
+
+    // product_images: cloudinary support
+    await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS cloudinary_public_id VARCHAR(500)`);
+
+    console.log('Migrations complete');
+  } catch (err) {
+    console.error('Migration error:', err.message);
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
@@ -55,6 +96,13 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Nora Hair Line server running on port ${PORT}`);
-});
+runMigrations()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Nora Hair Line server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Server failed to start due to migration error:', err.message);
+    process.exit(1);
+  });
