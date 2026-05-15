@@ -18,7 +18,7 @@ async function sendNewProductNotification(productName) {
         app_id: ONESIGNAL_APP_ID,
         included_segments: ['All'],
         headings: { en: 'Nora Hair Line' },
-        contents: { en: 'New arrival at Nora Hair Line! Check it out 💛' },
+        contents: { en: `New arrival: ${productName} 💛 Shop now at Nora Hair Line!` },
         url: 'https://norahairline.up.railway.app/shop',
       }),
     });
