@@ -394,6 +394,20 @@ router.patch('/orders/:id/status', authenticateAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/test-notification — sends a test push and returns OneSignal's raw response
+router.post('/test-notification', authenticateAdmin, async (req, res) => {
+  const { sendFlashSaleNotification } = require('../services/notifications');
+  try {
+    const apiKey = process.env.ONESIGNAL_REST_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'ONESIGNAL_REST_API_KEY is not set on the server' });
+
+    const result = await sendFlashSaleNotification();
+    res.json({ ok: true, onesignal: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/admin/flash-sale
 router.get('/flash-sale', authenticateAdmin, async (req, res) => {
   try {

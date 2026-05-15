@@ -25,10 +25,18 @@ async function sendPush(heading, content) {
     });
 
     const data = await res.json();
-    if (!res.ok) console.error('OneSignal error:', data);
-    else console.log('Push notification sent, id:', data.id);
+    if (!res.ok) {
+      console.error('OneSignal error:', JSON.stringify(data));
+    } else {
+      console.log(`Push notification sent — id: ${data.id}, recipients: ${data.recipients}`);
+      if (data.recipients === 0) {
+        console.warn('OneSignal: 0 recipients — no one has subscribed to push notifications yet');
+      }
+    }
+    return data;
   } catch (err) {
     console.error('OneSignal request failed:', err.message);
+    throw err;
   }
 }
 
