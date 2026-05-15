@@ -8,11 +8,15 @@ CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   price DECIMAL(10, 2) NOT NULL,
+  original_price DECIMAL(10, 2) DEFAULT NULL,
   category VARCHAR(100) NOT NULL,
   description TEXT,
   available BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Migration: add original_price to existing installs
+ALTER TABLE products ADD COLUMN IF NOT EXISTS original_price DECIMAL(10, 2) DEFAULT NULL;
 
 -- Product images table
 CREATE TABLE IF NOT EXISTS product_images (

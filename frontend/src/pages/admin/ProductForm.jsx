@@ -23,6 +23,7 @@ export default function ProductForm() {
   const [form, setForm] = useState({
     name: '',
     price: '',
+    original_price: '',
     category: CATEGORIES[0],
     description: '',
     available: true,
@@ -47,6 +48,7 @@ export default function ProductForm() {
         setForm({
           name: p.name,
           price: p.price,
+          original_price: p.original_price || '',
           category: p.category,
           description: p.description || '',
           available: p.available,
@@ -96,6 +98,7 @@ export default function ProductForm() {
     const formData = new FormData();
     formData.append('name', form.name.trim());
     formData.append('price', form.price);
+    formData.append('original_price', form.original_price || '');
     formData.append('category', form.category);
     formData.append('description', form.description);
     formData.append('available', form.available ? 'true' : 'false');
@@ -170,7 +173,7 @@ export default function ProductForm() {
                 />
               </div>
 
-              {/* Price & Category row */}
+              {/* Price, Original Price & Category */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -190,18 +193,39 @@ export default function ProductForm() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Category <span className="text-red-500">*</span>
+                    Original Price (₦)
+                    <span className="ml-1.5 text-gray-400 font-normal text-xs">— set only if on sale</span>
                   </label>
-                  <select
-                    name="category"
-                    value={form.category}
+                  <input
+                    type="number"
+                    name="original_price"
+                    value={form.original_price}
                     onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 bg-white"
-                  >
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                    placeholder="30000"
+                  />
                 </div>
+              </div>
+              {form.original_price && Number(form.original_price) <= Number(form.price) && (
+                <p className="text-xs text-amber-500">Original price should be higher than the sale price.</p>
+              )}
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 bg-white"
+                >
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
               </div>
 
               {/* Description */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getProduct } from '../api';
+import { getProduct, getProducts } from '../api';
+import ProductCard from '../components/ProductCard';
 
 const WHATSAPP_NUMBER = '2348038707795';
 
@@ -15,13 +16,22 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     setLoading(true);
+    setRelatedProducts([]);
     getProduct(id)
       .then(res => {
         setProduct(res.data);
         setActiveImage(0);
+        getProducts(res.data.category)
+          .then(relRes => {
+            setRelatedProducts(
+              relRes.data.filter(p => p.id !== Number(id)).slice(0, 2)
+            );
+          })
+          .catch(() => {});
       })
       .catch(err => {
         setError(err.response?.status === 404 ? 'Product not found' : 'Failed to load product');
@@ -139,8 +149,15 @@ export default function ProductDetail() {
             </h1>
 
             {/* Price */}
-            <div className="text-3xl font-bold text-gold-600 mb-5">
-              ₦{Number(product.price).toLocaleString()}
+            <div className="mb-5">
+              <span className="text-3xl font-bold text-gold-600">
+                ₦{Number(product.price).toLocaleString()}
+              </span>
+              {product.original_price && (
+                <span className="ml-3 text-lg text-gray-400 line-through">
+                  ₦{Number(product.original_price).toLocaleString()}
+                </span>
+              )}
             </div>
 
             {/* Availability */}
@@ -196,6 +213,20 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* You May Also Like */}
+      {relatedProducts.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14">
+          <div className="border-t border-gray-100 pt-10">
+            <h2 className="text-xl font-serif font-bold text-gray-800 mb-6">You May Also Like</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl">
+              {relatedProducts.map(p => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 export default function ProductCard({ product }) {
-  const { id, name, price, category, primary_image } = product;
+  const { id, name, price, original_price, category, primary_image } = product;
   const { addItem } = useCart();
 
   return (
@@ -33,9 +33,16 @@ export default function ProductCard({ product }) {
         <Link to={`/product/${id}`}>
           <h3 className="font-semibold text-gray-800 text-xs sm:text-base mb-1 hover:text-teal-600 transition-colors line-clamp-2">{name}</h3>
         </Link>
-        <p className="text-gold-600 font-bold text-sm sm:text-lg mb-3">
-          ₦{Number(price).toLocaleString()}
-        </p>
+        <div className="mb-3">
+          <p className="text-gold-600 font-bold text-sm sm:text-lg leading-tight">
+            ₦{Number(price).toLocaleString()}
+          </p>
+          {original_price && (
+            <p className="text-gray-400 text-xs sm:text-sm line-through leading-tight">
+              ₦{Number(original_price).toLocaleString()}
+            </p>
+          )}
+        </div>
 
         <div className="flex flex-col gap-1.5 sm:gap-2">
           <button

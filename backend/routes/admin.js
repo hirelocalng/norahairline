@@ -145,7 +145,7 @@ router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    const { name, price, category, description, available } = req.body;
+    const { name, price, original_price, category, description, available } = req.body;
 
     if (!name || !price || !category) {
       return res.status(400).json({ error: 'Name, price, and category are required' });
@@ -155,11 +155,12 @@ router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
     const videoFile = req.files?.video?.[0] || null;
     const videoUrl = videoFile ? videoFile.path : null;
     const videoPublicId = videoFile ? videoFile.filename : null;
+    const originalPrice = original_price ? parseFloat(original_price) : null;
 
     const productResult = await client.query(
-      `INSERT INTO products (name, price, category, description, available, video_url, video_public_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [name, parseFloat(price), category, description || '', available !== 'false', videoUrl, videoPublicId]
+      `INSERT INTO products (name, price, original_price, category, description, available, video_url, video_public_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', videoUrl, videoPublicId]
     );
 
     const product = productResult.rows[0];
@@ -198,23 +199,24 @@ router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) =>
     await client.query('BEGIN');
 
     const { id } = req.params;
-    const { name, price, category, description, available, deleteImageIds, deleteVideo } = req.body;
+    const { name, price, original_price, category, description, available, deleteImageIds, deleteVideo } = req.body;
 
     const imageFiles = req.files?.images || [];
     const videoFile = req.files?.video?.[0] || null;
     const setVideoNull = deleteVideo === 'true';
+    const originalPrice = original_price ? parseFloat(original_price) : null;
 
     // Build update query dynamically
     let updateQuery, updateParams;
     if (videoFile) {
-      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=$6, video_public_id=$7 WHERE id=$8 RETURNING *`;
-      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', videoFile.path, videoFile.filename, id];
+      updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=$7, video_public_id=$8 WHERE id=$9 RETURNING *`;
+      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', videoFile.path, videoFile.filename, id];
     } else if (setVideoNull) {
-      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5, video_url=NULL, video_public_id=NULL WHERE id=$6 RETURNING *`;
-      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', id];
+      updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=NULL, video_public_id=NULL WHERE id=$7 RETURNING *`;
+      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', id];
     } else {
-      updateQuery = `UPDATE products SET name=$1, price=$2, category=$3, description=$4, available=$5 WHERE id=$6 RETURNING *`;
-      updateParams = [name, parseFloat(price), category, description || '', available !== 'false', id];
+      updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6 WHERE id=$7 RETURNING *`;
+      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', id];
     }
 
     // Fetch old video public_id before updating
