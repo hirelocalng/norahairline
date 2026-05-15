@@ -401,25 +401,6 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Linktree */}
-            <div className="bg-emerald-50 rounded-2xl p-6 text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M7.953 15.066c-.08.163-.08.324-.08.486.08.517.528.897 1.052.897h2.182v4.906c0 .486.39.897.878.897h1.868c.488 0 .878-.41.878-.897v-4.906h2.182c.526 0 .973-.38 1.052-.897.08-.487-.196-.975-.645-1.218l-4.343-2.435c-.342-.163-.733-.163-1.075 0L8.598 14.44c-.234.162-.556.405-.645.626zm8.094-6.078l-4.343-2.435c-.342-.163-.733-.163-1.075 0L6.286 8.988c-.45.244-.725.73-.645 1.218.08.517.528.897 1.052.897h2.182v2.191h4.25v-2.19h2.182c.526 0 .973-.38 1.052-.897.08-.488-.196-.975-.645-1.22h.333z"/>
-                </svg>
-              </div>
-              <h3 className="font-semibold text-emerald-700 mb-2">All Our Links</h3>
-              <p className="text-gray-600 text-sm mb-4">Find all our social media and contact links in one place</p>
-              <a
-                href="https://linktr.ee/norahairline_"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
-              >
-                linktr.ee/norahairline_
-              </a>
-            </div>
-
             {/* TikTok */}
             <div className="bg-gray-50 rounded-2xl p-6 text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
