@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getProduct, getProducts } from '../api';
 import ProductCard from '../components/ProductCard';
+import FlashSaleBanner from '../components/FlashSaleBanner';
 
 const WHATSAPP_NUMBER = '2348038707795';
 
@@ -213,6 +214,9 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Flash sale banner — shown when a sale is active */}
+      <FlashSaleBanner />
 
       {/* You May Also Like */}
       {relatedProducts.length > 0 && (
