@@ -1,6 +1,6 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = 'onboarding@resend.dev';
 const WA = '08038707795';
 
@@ -103,6 +103,7 @@ async function sendOrderConfirmation(order) {
       Questions? Chat us on WhatsApp: <a href="https://wa.me/234${WA.replace(/^0/, '')}" style="color:${TEAL};font-weight:bold;">${WA}</a>
     </p>`;
 
+  if (!resend || !order.customer_email) return;
   await resend.emails.send({
     from: FROM,
     to: order.customer_email,
@@ -152,6 +153,7 @@ async function sendStatusUpdate(order, status) {
       Need help? WhatsApp us: <a href="https://wa.me/234${WA.replace(/^0/, '')}" style="color:${TEAL};font-weight:bold;">${WA}</a>
     </p>`;
 
+  if (!resend || !order.customer_email) return;
   await resend.emails.send({
     from: FROM,
     to: order.customer_email,

@@ -39,6 +39,23 @@ async function run() {
   await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(255)`);
   console.log('orders table ready');
 
+  // Create flash_sale_settings table (single-row config)
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS flash_sale_settings (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      active BOOLEAN DEFAULT false,
+      end_date TIMESTAMPTZ,
+      banner_image_url VARCHAR(500),
+      banner_image_public_id VARCHAR(500),
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT flash_sale_single_row CHECK (id = 1)
+    )
+  `);
+  await client.query(`
+    INSERT INTO flash_sale_settings (id, active) VALUES (1, false) ON CONFLICT (id) DO NOTHING
+  `);
+  console.log('flash_sale_settings table ready');
+
   await client.end();
   console.log('Migration complete');
 }

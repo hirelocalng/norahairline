@@ -389,4 +389,58 @@ router.patch('/orders/:id/status', authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/flash-sale
+router.get('/flash-sale', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM flash_sale_settings WHERE id = 1');
+    res.json(result.rows[0] || { id: 1, active: false, end_date: null, banner_image_url: null, banner_image_public_id: null });
+  } catch (err) {
+    console.error('Error fetching flash sale:', err);
+    res.status(500).json({ error: 'Failed to fetch flash sale settings' });
+  }
+});
+
+// PUT /api/admin/flash-sale
+router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async (req, res) => {
+  try {
+    const { active, end_date, clearBanner } = req.body;
+    const bannerFile = req.file;
+
+    const current = await pool.query('SELECT banner_image_public_id FROM flash_sale_settings WHERE id = 1');
+    const currentPublicId = current.rows[0]?.banner_image_public_id;
+
+    let bannerImageUrl;
+    let bannerImagePublicId;
+
+    if (bannerFile) {
+      bannerImageUrl = bannerFile.path;
+      bannerImagePublicId = bannerFile.filename;
+      if (currentPublicId) cloudinary.uploader.destroy(currentPublicId).catch(console.error);
+    } else if (clearBanner === 'true') {
+      bannerImageUrl = null;
+      bannerImagePublicId = null;
+      if (currentPublicId) cloudinary.uploader.destroy(currentPublicId).catch(console.error);
+    }
+
+    const setClauses = [`active = $1`, `end_date = $2`, `updated_at = NOW()`];
+    const values = [active === 'true' || active === true, end_date || null];
+
+    if (bannerImageUrl !== undefined) {
+      const nextIdx = values.length + 1;
+      setClauses.push(`banner_image_url = $${nextIdx}`, `banner_image_public_id = $${nextIdx + 1}`);
+      values.push(bannerImageUrl, bannerImagePublicId);
+    }
+
+    const result = await pool.query(
+      `UPDATE flash_sale_settings SET ${setClauses.join(', ')} WHERE id = 1 RETURNING *`,
+      values
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating flash sale:', err);
+    res.status(500).json({ error: 'Failed to update flash sale settings' });
+  }
+});
+
 module.exports = router;

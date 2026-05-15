@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getFeaturedProducts } from '../api';
 import ProductCard from '../components/ProductCard';
+import FlashSaleBanner from '../components/FlashSaleBanner';
 
 const CATEGORIES = [
   { name: 'Wigs', image: '/categories/wigs.jpg', desc: 'Full wigs for every occasion' },
@@ -51,6 +52,8 @@ export default function Home() {
 
   return (
     <div>
+      <FlashSaleBanner />
+
       {/* ===== HERO SECTION ===== */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
 

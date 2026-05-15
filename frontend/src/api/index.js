@@ -52,5 +52,10 @@ export const deleteProduct = (id) => api.delete(`/admin/products/${id}`);
 export const changePassword = (currentPassword, newPassword) =>
   api.post('/admin/change-password', { currentPassword, newPassword });
 
+// Flash sale
+export const getFlashSale = () => api.get('/flash-sale');
+export const getAdminFlashSale = () => api.get('/admin/flash-sale');
+export const updateFlashSale = (formData) =>
+  api.put('/admin/flash-sale', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 export default api;
