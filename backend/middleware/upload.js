@@ -14,19 +14,23 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
     const isVideo = file.fieldname === 'video';
+    if (isVideo) {
+      return { folder: 'norahairline', resource_type: 'video' };
+    }
     return {
       folder: 'norahairline',
-      resource_type: isVideo ? 'video' : 'image',
-      allowed_formats: isVideo ? ['mp4'] : ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-      ...(isVideo ? {} : { transformation: [{ quality: 'auto', fetch_format: 'auto' }] }),
+      resource_type: 'image',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      transformation: [{ quality: 'auto', fetch_format: 'auto' }],
     };
   },
 });
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === 'video') {
-    const ismp4 = path.extname(file.originalname).toLowerCase() === '.mp4' && file.mimetype === 'video/mp4';
-    return ismp4 ? cb(null, true) : cb(new Error('Only MP4 video files are allowed'));
+    // Accept any video mimetype
+    if (file.mimetype.startsWith('video/')) return cb(null, true);
+    return cb(new Error('Only video files are allowed'));
   }
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -38,7 +42,20 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024, files: 11 },
+  limits: { fileSize: 100 * 1024 * 1024, files: 11 },
 });
 
-module.exports = { upload, cloudinary };
+// Wraps multer fields upload so errors return JSON instead of HTML
+const uploadFields = upload.fields([{ name: 'images', maxCount: 10 }, { name: 'video', maxCount: 1 }]);
+
+function handleUpload(req, res, next) {
+  uploadFields(req, res, (err) => {
+    if (!err) return next();
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large. Maximum size is 100MB for videos, 100MB for images.' });
+    }
+    return res.status(400).json({ error: err.message || 'File upload failed' });
+  });
+}
+
+module.exports = { upload, cloudinary, handleUpload };

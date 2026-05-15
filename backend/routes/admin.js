@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
-const { upload, cloudinary } = require('../middleware/upload');
+const { upload, cloudinary, handleUpload } = require('../middleware/upload');
 const { sendStatusUpdate } = require('../services/email');
 const { sendNewProductNotification } = require('../services/notifications');
 
@@ -137,10 +137,8 @@ router.get('/products/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
-const uploadFields = upload.fields([{ name: 'images', maxCount: 10 }, { name: 'video', maxCount: 1 }]);
-
 // POST /api/admin/products - create product
-router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
+router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -193,7 +191,7 @@ router.post('/products', authenticateAdmin, uploadFields, async (req, res) => {
 });
 
 // PUT /api/admin/products/:id - update product
-router.put('/products/:id', authenticateAdmin, uploadFields, async (req, res) => {
+router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

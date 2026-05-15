@@ -342,7 +342,7 @@ export default function ProductForm() {
             <h2 className="font-semibold text-gray-700 mb-1 pb-3 border-b border-gray-100">
               Product Video <span className="text-gray-400 font-normal text-xs ml-1">optional</span>
             </h2>
-            <p className="text-xs text-gray-400 mb-4">MP4 format only — max 50MB</p>
+            <p className="text-xs text-gray-400 mb-4">Any video format (MP4, MOV, AVI, WebM…) — max 100MB</p>
 
             {/* Existing video (edit mode) */}
             {isEdit && existingVideoUrl && !deleteVideo && !newVideoFile && (
@@ -406,15 +406,15 @@ export default function ProductForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                 </svg>
                 <p className="text-sm text-gray-600 font-medium">Click to upload video</p>
-                <p className="text-xs text-gray-400 mt-1">MP4 — max 50MB</p>
+                <p className="text-xs text-gray-400 mt-1">Any video format — max 100MB</p>
                 <input
                   type="file"
-                  accept="video/mp4"
+                  accept="video/*"
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
-                    if (file.size > 50 * 1024 * 1024) {
-                      setVideoError('Video exceeds 50MB limit');
+                    if (file.size > 100 * 1024 * 1024) {
+                      setVideoError('Video exceeds 100MB limit');
                       e.target.value = '';
                       return;
                     }
