@@ -180,7 +180,10 @@ router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
     res.status(201).json({ ...product, images: imagesResult.rows });
 
     // Send push notification (non-blocking, after response)
-    sendNewProductNotification(product.name).catch(console.error);
+    console.log('[Admin] Product created, firing push notification for:', product.name);
+    sendNewProductNotification(product.name).catch(err => {
+      console.error('[Admin] Push notification failed for new product:', err.message);
+    });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error creating product:', err);
@@ -461,7 +464,12 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
     // Notify subscribers when sale is switched on (not on every save)
     const nowActive = active === 'true' || active === true;
     if (nowActive && !wasActive) {
-      sendFlashSaleNotification().catch(console.error);
+      console.log('[Admin] Flash sale activated, firing push notification');
+      sendFlashSaleNotification().catch(err => {
+        console.error('[Admin] Push notification failed for flash sale:', err.message);
+      });
+    } else {
+      console.log('[Admin] Flash sale update saved (no notification — was already active or being deactivated)');
     }
   } catch (err) {
     console.error('Error updating flash sale:', err);

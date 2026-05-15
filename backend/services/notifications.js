@@ -5,8 +5,16 @@ async function sendPush(heading, content) {
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
   const appId  = process.env.ONESIGNAL_APP_ID;
 
-  if (!apiKey || !appId) {
-    console.warn('[OneSignal] ONESIGNAL_REST_API_KEY or ONESIGNAL_APP_ID not set — skipping push');
+  console.log('[OneSignal] sendPush called:', heading);
+  console.log('[OneSignal] ONESIGNAL_APP_ID set:', !!appId);
+  console.log('[OneSignal] ONESIGNAL_REST_API_KEY set:', !!apiKey);
+
+  if (!apiKey) {
+    console.error('[OneSignal] ONESIGNAL_REST_API_KEY is not set — cannot send push');
+    return null;
+  }
+  if (!appId) {
+    console.error('[OneSignal] ONESIGNAL_APP_ID is not set — cannot send push');
     return null;
   }
 
@@ -18,25 +26,32 @@ async function sendPush(heading, content) {
     url: SHOP_URL,
   };
 
-  const res = await fetch(ONESIGNAL_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Basic ${apiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  console.log('[OneSignal] Sending payload:', JSON.stringify(payload));
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    console.error('[OneSignal] API error:', JSON.stringify(data));
-    throw new Error(data.errors?.[0] || 'OneSignal request failed');
+  let res, data;
+  try {
+    res = await fetch(ONESIGNAL_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    data = await res.json();
+  } catch (err) {
+    console.error('[OneSignal] Network/fetch error:', err.message);
+    throw err;
   }
 
-  console.log(`[OneSignal] Notification sent — id: ${data.id}, recipients: ${data.recipients}`);
+  if (!res.ok) {
+    console.error('[OneSignal] API returned error status', res.status, ':', JSON.stringify(data));
+    throw new Error(data.errors?.[0] || `OneSignal API error ${res.status}`);
+  }
+
+  console.log(`[OneSignal] Success — notification id: ${data.id}, recipients: ${data.recipients}`);
   if (data.recipients === 0) {
-    console.warn('[OneSignal] 0 recipients — no subscribers have opted in yet');
+    console.warn('[OneSignal] 0 recipients — no users have opted in to push notifications yet');
   }
 
   return data;
@@ -44,6 +59,7 @@ async function sendPush(heading, content) {
 
 // Trigger 1: new product added
 function sendNewProductNotification(productName) {
+  console.log('[OneSignal] Triggering new product notification for:', productName);
   return sendPush(
     'New Arrival! 🛍️',
     `${productName} is now available — Shop now at Nora Hair Line!`
@@ -52,6 +68,7 @@ function sendNewProductNotification(productName) {
 
 // Trigger 2: flash sale activated
 function sendFlashSaleNotification() {
+  console.log('[OneSignal] Triggering flash sale notification');
   return sendPush(
     '⚡ Flash Sale is LIVE!',
     "Don't miss out — amazing deals are waiting for you. Shop now!"
