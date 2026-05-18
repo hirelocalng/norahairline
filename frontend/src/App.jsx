@@ -16,6 +16,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import ProductForm from './pages/admin/ProductForm';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminGallery from './pages/admin/AdminGallery';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -67,6 +68,7 @@ function AppRoutes() {
       <Route path="/admin/products/new" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
       <Route path="/admin/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
       <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
+      <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
       {/* Catch all */}

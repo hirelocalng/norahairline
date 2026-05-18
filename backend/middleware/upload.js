@@ -58,4 +58,41 @@ function handleUpload(req, res, next) {
   });
 }
 
-module.exports = { upload, cloudinary, handleUpload };
+const galleryStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const isVideo = file.mimetype.startsWith('video/');
+    if (isVideo) {
+      return { folder: 'norahairline/gallery', resource_type: 'video' };
+    }
+    return {
+      folder: 'norahairline/gallery',
+      resource_type: 'image',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+      transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+    };
+  },
+});
+
+const galleryUpload = multer({
+  storage: galleryStorage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('video/') || /jpeg|jpg|png|webp/.test(file.mimetype)) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images (jpg, png, webp) and videos (mp4, mov) are allowed'));
+  },
+  limits: { fileSize: 100 * 1024 * 1024 },
+});
+
+function handleGalleryUpload(req, res, next) {
+  galleryUpload.single('file')(req, res, (err) => {
+    if (!err) return next();
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large. Maximum size is 100MB.' });
+    }
+    return res.status(400).json({ error: err.message || 'File upload failed' });
+  });
+}
+
+module.exports = { upload, cloudinary, handleUpload, handleGalleryUpload };

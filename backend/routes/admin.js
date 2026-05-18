@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
-const { upload, cloudinary, handleUpload } = require('../middleware/upload');
+const { upload, cloudinary, handleUpload, handleGalleryUpload } = require('../middleware/upload');
 const { sendStatusUpdate } = require('../services/email');
 const { sendNewProductNotification, sendFlashSaleNotification } = require('../services/notifications');
 
@@ -477,6 +477,57 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
   } catch (err) {
     console.error('Error updating flash sale:', err);
     res.status(500).json({ error: 'Failed to update flash sale settings' });
+  }
+});
+
+// GET /api/admin/gallery
+router.get('/gallery', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM gallery_items ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching gallery:', err);
+    res.status(500).json({ error: 'Failed to fetch gallery items' });
+  }
+});
+
+// POST /api/admin/gallery
+router.post('/gallery', authenticateAdmin, handleGalleryUpload, async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'image';
+    const result = await pool.query(
+      'INSERT INTO gallery_items (file_url, cloudinary_public_id, media_type) VALUES ($1, $2, $3) RETURNING *',
+      [file.path, file.filename, mediaType]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error uploading gallery item:', err);
+    res.status(500).json({ error: 'Failed to upload gallery item' });
+  }
+});
+
+// DELETE /api/admin/gallery/:id
+router.delete('/gallery/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM gallery_items WHERE id = $1', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Gallery item not found' });
+
+    const item = result.rows[0];
+    await pool.query('DELETE FROM gallery_items WHERE id = $1', [id]);
+
+    if (item.cloudinary_public_id) {
+      const resourceType = item.media_type === 'video' ? 'video' : 'image';
+      cloudinary.uploader.destroy(item.cloudinary_public_id, { resource_type: resourceType }).catch(console.error);
+    }
+
+    res.json({ message: 'Gallery item deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting gallery item:', err);
+    res.status(500).json({ error: 'Failed to delete gallery item' });
   }
 });
 

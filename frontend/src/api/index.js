@@ -58,4 +58,11 @@ export const getAdminFlashSale = () => api.get('/admin/flash-sale');
 export const updateFlashSale = (formData) =>
   api.put('/admin/flash-sale', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
+// Gallery
+export const getGallery = () => api.get('/gallery');
+export const getAdminGallery = () => api.get('/admin/gallery');
+export const uploadGalleryItem = (formData) =>
+  api.post('/admin/gallery', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const deleteGalleryItem = (id) => api.delete(`/admin/gallery/${id}`);
+
 export default api;

@@ -43,6 +43,18 @@ async function runMigrations() {
     // product_images: cloudinary support
     await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS cloudinary_public_id VARCHAR(500)`);
 
+    // Gallery items table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS gallery_items (
+        id SERIAL PRIMARY KEY,
+        file_url VARCHAR(500) NOT NULL,
+        cloudinary_public_id VARCHAR(500),
+        media_type VARCHAR(10) NOT NULL DEFAULT 'image',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_gallery_items_created_at ON gallery_items(created_at DESC)`);
+
     console.log('Migrations complete');
   } catch (err) {
     console.error('Migration error:', err.message);
@@ -84,6 +96,18 @@ app.get('/api/flash-sale', async (req, res) => {
     res.json(result.rows[0] || { active: false, end_date: null, banner_image_url: null });
   } catch (err) {
     res.json({ active: false, end_date: null, banner_image_url: null });
+  }
+});
+
+// Public gallery endpoint
+app.get('/api/gallery', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, file_url, media_type, created_at FROM gallery_items ORDER BY created_at DESC'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.json([]);
   }
 });
 

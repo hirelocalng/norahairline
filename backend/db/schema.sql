@@ -41,6 +41,17 @@ CREATE INDEX IF NOT EXISTS idx_products_available ON products(available);
 CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);
 CREATE INDEX IF NOT EXISTS idx_product_images_is_primary ON product_images(is_primary);
 
+-- Gallery items table
+CREATE TABLE IF NOT EXISTS gallery_items (
+  id SERIAL PRIMARY KEY,
+  file_url VARCHAR(500) NOT NULL,
+  cloudinary_public_id VARCHAR(500),
+  media_type VARCHAR(10) NOT NULL DEFAULT 'image',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_gallery_items_created_at ON gallery_items(created_at DESC);
+
 -- Default admin user (password: admin123 - CHANGE THIS IN PRODUCTION)
 -- bcrypt hash of 'admin123'
 INSERT INTO admins (email, password_hash)

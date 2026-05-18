@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getFeaturedProducts } from '../api';
 import ProductCard from '../components/ProductCard';
 import FlashSaleBanner from '../components/FlashSaleBanner';
+import GallerySection from '../components/GallerySection';
 
 const CATEGORIES = [
   { name: 'Wigs', image: '/categories/wigs.jpg', desc: 'Full wigs for every occasion' },
@@ -339,6 +340,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== NORA HAIR QUEENS GALLERY ===== */}
+      <GallerySection />
 
       {/* Flash sale banner — second instance above contact section */}
       <FlashSaleBanner />
