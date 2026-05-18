@@ -1,24 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getGallery } from '../api';
 
-function Lightbox({ item, onClose }) {
+function Lightbox({ item, items, onClose, onPrev, onNext }) {
+  const hasPrev = items.indexOf(item) > 0;
+  const hasNext = items.indexOf(item) < items.length - 1;
+
+  const handleKey = useCallback((e) => {
+    if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowLeft' && hasPrev) onPrev();
+    if (e.key === 'ArrowRight' && hasNext) onNext();
+  }, [onClose, onPrev, onNext, hasPrev, hasNext]);
+
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('keydown', handleKey);
     document.body.style.overflow = 'hidden';
     return () => {
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', handleKey);
       document.body.style.overflow = '';
     };
-  }, [onClose]);
+  }, [handleKey]);
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center p-4"
       onClick={onClose}
     >
+      {/* Close */}
       <button
-        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white hover:text-gold-300 transition-colors"
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors z-10"
         onClick={onClose}
         aria-label="Close"
       >
@@ -26,15 +35,66 @@ function Lightbox({ item, onClose }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <div className="w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
-        <video
-          src={item.file_url}
-          className="w-full max-h-[85vh] rounded-2xl object-contain"
-          controls
-          autoPlay
-          playsInline
-        />
+
+      {/* Prev */}
+      {hasPrev && (
+        <button
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
+          onClick={(e) => { e.stopPropagation(); onPrev(); }}
+          aria-label="Previous"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Next */}
+      {hasNext && (
+        <button
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
+          aria-label="Next"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Media */}
+      <div className="w-full max-w-4xl max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+        {item.media_type === 'video' ? (
+          <video
+            key={item.id}
+            src={item.file_url}
+            className="max-w-full max-h-[90vh] rounded-2xl object-contain"
+            controls
+            autoPlay
+            playsInline
+          />
+        ) : (
+          <img
+            key={item.id}
+            src={item.file_url}
+            alt=""
+            className="max-w-full max-h-[90vh] rounded-2xl object-contain select-none"
+            draggable={false}
+          />
+        )}
       </div>
+
+      {/* Dot indicator */}
+      {items.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {items.map((it, i) => (
+            <div
+              key={it.id}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${it.id === item.id ? 'bg-white scale-125' : 'bg-white/40'}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -42,7 +102,7 @@ function Lightbox({ item, onClose }) {
 export default function GallerySection() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lightboxItem, setLightboxItem] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   useEffect(() => {
     getGallery()
@@ -50,6 +110,11 @@ export default function GallerySection() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const open = (index) => setLightboxIndex(index);
+  const close = () => setLightboxIndex(null);
+  const prev = () => setLightboxIndex(i => Math.max(0, i - 1));
+  const next = () => setLightboxIndex(i => Math.min(items.length - 1, i + 1));
 
   if (!loading && items.length === 0) return null;
 
@@ -70,11 +135,11 @@ export default function GallerySection() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {items.map(item =>
+              {items.map((item, index) =>
                 item.media_type === 'video' ? (
                   <button
                     key={item.id}
-                    onClick={() => setLightboxItem(item)}
+                    onClick={() => open(index)}
                     className="relative aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer w-full"
                   >
                     <video
@@ -93,9 +158,10 @@ export default function GallerySection() {
                     </div>
                   </button>
                 ) : (
-                  <div
+                  <button
                     key={item.id}
-                    className="aspect-square rounded-xl overflow-hidden bg-burgundy-50 group"
+                    onClick={() => open(index)}
+                    className="aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer w-full"
                   >
                     <img
                       src={item.file_url}
@@ -103,7 +169,7 @@ export default function GallerySection() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
                     />
-                  </div>
+                  </button>
                 )
               )}
             </div>
@@ -111,8 +177,14 @@ export default function GallerySection() {
         </div>
       </section>
 
-      {lightboxItem && (
-        <Lightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
+      {lightboxIndex !== null && (
+        <Lightbox
+          item={items[lightboxIndex]}
+          items={items}
+          onClose={close}
+          onPrev={prev}
+          onNext={next}
+        />
       )}
     </>
   );
