@@ -30,8 +30,9 @@ export default function AdminGallery() {
       try {
         const res = await uploadGalleryItem(fd);
         setItems(prev => [res.data, ...prev]);
-      } catch {
-        setError(`Failed to upload ${file.name}`);
+      } catch (err) {
+        const msg = err.response?.data?.error || err.message || `Failed to upload ${file.name}`;
+        setError(`Upload failed: ${msg}`);
       }
     }
     setUploading(false);
