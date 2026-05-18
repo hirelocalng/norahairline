@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getGallery } from '../api';
 
 function Lightbox({ item, items, onClose, onPrev, onNext }) {
   const hasPrev = items.indexOf(item) > 0;
   const hasNext = items.indexOf(item) < items.length - 1;
+  const touchStartX = useRef(null);
 
   const handleKey = useCallback((e) => {
     if (e.key === 'Escape') onClose();
@@ -20,10 +21,22 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
     };
   }, [handleKey]);
 
+  const onTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 40) return;
+    if (dx < 0 && hasNext) onNext();
+    if (dx > 0 && hasPrev) onPrev();
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 bg-black flex items-center justify-center sm:bg-black/92 sm:p-4"
       onClick={onClose}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
       {/* Close */}
       <button
