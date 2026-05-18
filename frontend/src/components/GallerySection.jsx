@@ -22,12 +22,12 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black flex items-center justify-center sm:bg-black/92 sm:p-4"
       onClick={onClose}
     >
       {/* Close */}
       <button
-        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors z-10"
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors z-10"
         onClick={onClose}
         aria-label="Close"
       >
@@ -39,7 +39,7 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
       {/* Prev */}
       {hasPrev && (
         <button
-          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
+          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
           aria-label="Previous"
         >
@@ -52,7 +52,7 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
       {/* Next */}
       {hasNext && (
         <button
-          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
+          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
           onClick={(e) => { e.stopPropagation(); onNext(); }}
           aria-label="Next"
         >
@@ -62,13 +62,16 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
         </button>
       )}
 
-      {/* Media */}
-      <div className="w-full max-w-4xl max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+      {/* Media — full screen on mobile, contained on desktop */}
+      <div
+        className="w-full h-full flex items-center justify-center sm:w-auto sm:h-auto sm:max-w-4xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {item.media_type === 'video' ? (
           <video
             key={item.id}
             src={item.file_url}
-            className="max-w-full max-h-[90vh] rounded-2xl object-contain"
+            className="w-full h-full object-contain sm:max-h-[90vh] sm:rounded-2xl"
             controls
             autoPlay
             playsInline
@@ -78,7 +81,7 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
             key={item.id}
             src={item.file_url}
             alt=""
-            className="max-w-full max-h-[90vh] rounded-2xl object-contain select-none"
+            className="w-full h-full object-contain sm:max-h-[90vh] sm:rounded-2xl select-none"
             draggable={false}
           />
         )}
@@ -86,8 +89,8 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
 
       {/* Dot indicator */}
       {items.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {items.map((it, i) => (
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {items.map((it) => (
             <div
               key={it.id}
               className={`w-1.5 h-1.5 rounded-full transition-all ${it.id === item.id ? 'bg-white scale-125' : 'bg-white/40'}`}
