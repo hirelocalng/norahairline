@@ -190,8 +190,8 @@ router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
       const { thumb, medium, large } = uploadedImages[i];
       await client.query(
         `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, image_thumb, image_medium, image_large, is_primary)
-         VALUES ($1, NULL, NULL, $2, $3, $4, $5)`,
-        [product.id, thumb, medium, large, i === 0]
+         VALUES ($1, $2, NULL, $3, $4, $5, $6)`,
+        [product.id, medium, thumb, medium, large, i === 0]
       );
     }
 
@@ -297,8 +297,8 @@ router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) =>
         const { thumb, medium, large } = uploadedImages[i];
         await client.query(
           `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, image_thumb, image_medium, image_large, is_primary)
-           VALUES ($1, NULL, NULL, $2, $3, $4, $5)`,
-          [id, thumb, medium, large, !hasExisting && i === 0]
+           VALUES ($1, $2, NULL, $3, $4, $5, $6)`,
+          [id, medium, thumb, medium, large, !hasExisting && i === 0]
         );
       }
     }
@@ -592,6 +592,7 @@ router.post('/gallery', authenticateAdmin, handleGalleryUpload, async (req, res)
       fileUrl = await uploadVideo(file.buffer, 'norahairline/gallery', file.mimetype, file.originalname);
     } else {
       ({ thumb, medium, large } = await uploadImage(file.buffer, 'norahairline/gallery'));
+      fileUrl = medium; // gallery_items.file_url is NOT NULL — legacy column mirrors the medium variant
     }
 
     const result = await pool.query(
