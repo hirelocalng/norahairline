@@ -6,7 +6,9 @@
     "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
     "start": "node backend/server.js",
     "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev"
+    "dev:frontend": "cd frontend && npm run dev",
+    "migrate": "node backend/migrate.js",
+    "migrate:r2": "node scripts/migrateCloudinaryToR2.js"
   },
   "engines": {
     "node": ">=18.0.0"

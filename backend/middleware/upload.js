@@ -1,13 +1,12 @@
 const multer = require('multer');
-const path = require('path');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
+const { MAX_IMAGE_SIZE, MAX_VIDEO_SIZE } = require('../utils/media');
 require('dotenv').config();
 
+// Cloudinary is kept configured only to delete legacy assets still
+// referenced by cloudinary_public_id — new uploads go to R2.
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.error('[UPLOAD] ERROR: Cloudinary credentials are missing from .env!');
-  console.error('[UPLOAD] Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file.');
-  console.error('[UPLOAD] Get these from: https://cloudinary.com → Dashboard → API Keys');
+  console.error('[UPLOAD] WARNING: Cloudinary credentials are missing from .env (needed to delete legacy Cloudinary assets).');
 }
 
 cloudinary.config({
@@ -16,89 +15,81 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    const isVideo = file.fieldname === 'video';
-    if (isVideo) {
-      return { folder: 'norahairline', resource_type: 'video' };
-    }
-    return {
-      folder: 'norahairline',
-      resource_type: 'image',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-      transformation: [{ quality: 'auto', fetch_format: 'auto' }],
-    };
-  },
-});
+const memoryStorage = multer.memoryStorage();
 
-const fileFilter = (req, file, cb) => {
+function imageOrVideoFilter(req, file, cb) {
   if (file.fieldname === 'video') {
-    // Accept any video mimetype
     if (file.mimetype.startsWith('video/')) return cb(null, true);
     return cb(new Error('Only video files are allowed'));
   }
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
-  if (extname && mimetype) return cb(null, true);
+  if (file.mimetype.startsWith('image/')) return cb(null, true);
   cb(new Error('Only image files (jpeg, jpg, png, gif, webp) are allowed'));
-};
+}
 
+// multer applies one fileSize ceiling to every file in a request, so this is
+// set to the larger (video) limit; the true 10MB image cap is enforced below
+// once files are in memory and we know which field each one came from.
 const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 100 * 1024 * 1024, files: 11 },
+  storage: memoryStorage,
+  fileFilter: imageOrVideoFilter,
+  limits: { fileSize: MAX_VIDEO_SIZE, files: 11 },
 });
 
-// Wraps multer fields upload so errors return JSON instead of HTML
 const uploadFields = upload.fields([{ name: 'images', maxCount: 10 }, { name: 'video', maxCount: 1 }]);
 
 function handleUpload(req, res, next) {
   uploadFields(req, res, (err) => {
-    if (!err) return next();
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ error: 'File too large. Maximum size is 100MB for videos, 100MB for images.' });
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 50MB for videos.' });
+      }
+      return res.status(400).json({ error: err.message || 'File upload failed' });
     }
-    return res.status(400).json({ error: err.message || 'File upload failed' });
+    const oversized = (req.files?.images || []).some(f => f.size > MAX_IMAGE_SIZE);
+    if (oversized) {
+      return res.status(400).json({ error: 'Images must be under 10MB each' });
+    }
+    next();
   });
 }
 
-const galleryStorage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    const isVideo = file.mimetype.startsWith('video/');
-    if (isVideo) {
-      return { folder: 'norahairline/gallery', resource_type: 'video' };
+function handleBannerUpload(req, res, next) {
+  upload.single('bannerImage')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+      }
+      return res.status(400).json({ error: err.message || 'File upload failed' });
     }
-    return {
-      folder: 'norahairline/gallery',
-      resource_type: 'image',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-      transformation: [{ quality: 'auto', fetch_format: 'auto' }],
-    };
-  },
-});
+    if (req.file && req.file.size > MAX_IMAGE_SIZE) {
+      return res.status(400).json({ error: 'Banner image must be under 10MB' });
+    }
+    next();
+  });
+}
 
 const galleryUpload = multer({
-  storage: galleryStorage,
+  storage: memoryStorage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('video/') || /jpeg|jpg|png|webp/.test(file.mimetype)) {
-      return cb(null, true);
-    }
-    cb(new Error('Only images (jpg, png, webp) and videos (mp4, mov) are allowed'));
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) return cb(null, true);
+    cb(new Error('Only images and videos are allowed'));
   },
-  limits: { fileSize: 100 * 1024 * 1024 },
+  limits: { fileSize: MAX_VIDEO_SIZE },
 });
 
 function handleGalleryUpload(req, res, next) {
   galleryUpload.single('file')(req, res, (err) => {
-    if (!err) return next();
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ error: 'File too large. Maximum size is 100MB.' });
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 50MB.' });
+      }
+      return res.status(400).json({ error: err.message || 'File upload failed' });
     }
-    return res.status(400).json({ error: err.message || 'File upload failed' });
+    if (req.file && req.file.mimetype.startsWith('image/') && req.file.size > MAX_IMAGE_SIZE) {
+      return res.status(400).json({ error: 'Images must be under 10MB' });
+    }
+    next();
   });
 }
 
-module.exports = { upload, cloudinary, handleUpload, handleGalleryUpload };
+module.exports = { cloudinary, handleUpload, handleBannerUpload, handleGalleryUpload };

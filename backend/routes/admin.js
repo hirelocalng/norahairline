@@ -4,9 +4,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { authenticateAdmin } = require('../middleware/auth');
-const { upload, cloudinary, handleUpload, handleGalleryUpload } = require('../middleware/upload');
+const { cloudinary, handleUpload, handleBannerUpload, handleGalleryUpload } = require('../middleware/upload');
+const { uploadImage, uploadVideo, deleteMedia } = require('../utils/media');
 const { sendStatusUpdate } = require('../services/email');
 const { sendNewProductNotification, sendFlashSaleNotification } = require('../services/notifications');
+
+// product_images select shared by every route that returns a product's images —
+// image_url/thumb/medium/large all fall back to the legacy Cloudinary image_url
+// column so pre-migration products keep rendering.
+const PRODUCT_IMAGES_SELECT = `
+  SELECT id, product_id, is_primary, created_at, cloudinary_public_id,
+    COALESCE(image_thumb, image_url) AS image_thumb,
+    COALESCE(image_medium, image_url) AS image_medium,
+    COALESCE(image_large, image_url) AS image_large,
+    COALESCE(image_medium, image_url) AS image_url
+  FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC
+`;
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
@@ -103,7 +116,7 @@ router.get('/products', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT p.*,
-        pi.image_url AS primary_image
+        COALESCE(pi.image_thumb, pi.image_url) AS primary_image
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = true
       ORDER BY p.created_at DESC
@@ -125,10 +138,7 @@ router.get('/products/:id', authenticateAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    const imagesResult = await pool.query(
-      'SELECT * FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC',
-      [id]
-    );
+    const imagesResult = await pool.query(PRODUCT_IMAGES_SELECT, [id]);
 
     res.json({ ...productResult.rows[0], images: imagesResult.rows });
   } catch (err) {
@@ -139,43 +149,55 @@ router.get('/products/:id', authenticateAdmin, async (req, res) => {
 
 // POST /api/admin/products - create product
 router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
+  const { name, price, original_price, category, description, available } = req.body;
+
+  if (!name || !price || !category) {
+    return res.status(400).json({ error: 'Name, price, and category are required' });
+  }
+
+  const imageFiles = req.files?.images || [];
+  const videoFile = req.files?.video?.[0] || null;
+  const originalPrice = original_price ? parseFloat(original_price) : null;
+
+  // Upload media to R2 before touching the DB
+  let videoUrl = null;
+  const uploadedImages = [];
+  try {
+    if (videoFile) {
+      videoUrl = await uploadVideo(videoFile.buffer, 'norahairline/products', videoFile.mimetype, videoFile.originalname);
+    }
+    for (const file of imageFiles) {
+      uploadedImages.push(await uploadImage(file.buffer, 'norahairline/products'));
+    }
+  } catch (err) {
+    console.error('Media upload error:', err);
+    return res.status(400).json({ error: err.message || 'Failed to process uploaded media' });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    const { name, price, original_price, category, description, available } = req.body;
-
-    if (!name || !price || !category) {
-      return res.status(400).json({ error: 'Name, price, and category are required' });
-    }
-
-    const imageFiles = req.files?.images || [];
-    const videoFile = req.files?.video?.[0] || null;
-    const videoUrl = videoFile ? videoFile.path : null;
-    const videoPublicId = videoFile ? videoFile.filename : null;
-    const originalPrice = original_price ? parseFloat(original_price) : null;
-
     const productResult = await client.query(
       `INSERT INTO products (name, price, original_price, category, description, available, video_url, video_public_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', videoUrl, videoPublicId]
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NULL) RETURNING *`,
+      [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', videoUrl]
     );
 
     const product = productResult.rows[0];
 
-    for (let i = 0; i < imageFiles.length; i++) {
+    for (let i = 0; i < uploadedImages.length; i++) {
+      const { thumb, medium, large } = uploadedImages[i];
       await client.query(
-        `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, is_primary) VALUES ($1, $2, $3, $4)`,
-        [product.id, imageFiles[i].path, imageFiles[i].filename, i === 0]
+        `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, image_thumb, image_medium, image_large, is_primary)
+         VALUES ($1, NULL, NULL, $2, $3, $4, $5)`,
+        [product.id, thumb, medium, large, i === 0]
       );
     }
 
     await client.query('COMMIT');
 
-    const imagesResult = await pool.query(
-      'SELECT * FROM product_images WHERE product_id = $1',
-      [product.id]
-    );
+    const imagesResult = await pool.query(PRODUCT_IMAGES_SELECT, [product.id]);
 
     res.status(201).json({ ...product, images: imagesResult.rows });
 
@@ -195,23 +217,52 @@ router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
 
 // PUT /api/admin/products/:id - update product
 router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) => {
+  const { id } = req.params;
+  const { name, price, original_price, category, description, available, deleteImageIds, deleteVideo } = req.body;
+
+  const imageFiles = req.files?.images || [];
+  const videoFile = req.files?.video?.[0] || null;
+  const setVideoNull = deleteVideo === 'true';
+  const originalPrice = original_price ? parseFloat(original_price) : null;
+
+  let idsToDelete = [];
+  if (deleteImageIds) {
+    try { idsToDelete = JSON.parse(deleteImageIds); }
+    catch { return res.status(400).json({ error: 'Invalid deleteImageIds format' }); }
+  }
+
+  // Upload media to R2 before touching the DB
+  let newVideoUrl = null;
+  const uploadedImages = [];
+  try {
+    if (videoFile) {
+      newVideoUrl = await uploadVideo(videoFile.buffer, 'norahairline/products', videoFile.mimetype, videoFile.originalname);
+    }
+    for (const file of imageFiles) {
+      uploadedImages.push(await uploadImage(file.buffer, 'norahairline/products'));
+    }
+  } catch (err) {
+    console.error('Media upload error:', err);
+    return res.status(400).json({ error: err.message || 'Failed to process uploaded media' });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    const { id } = req.params;
-    const { name, price, original_price, category, description, available, deleteImageIds, deleteVideo } = req.body;
-
-    const imageFiles = req.files?.images || [];
-    const videoFile = req.files?.video?.[0] || null;
-    const setVideoNull = deleteVideo === 'true';
-    const originalPrice = original_price ? parseFloat(original_price) : null;
+    const oldProductResult = await client.query('SELECT video_public_id, video_url FROM products WHERE id=$1', [id]);
+    if (oldProductResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    const oldVideoPublicId = oldProductResult.rows[0].video_public_id;
+    const oldVideoUrl = oldProductResult.rows[0].video_url;
 
     // Build update query dynamically
     let updateQuery, updateParams;
     if (videoFile) {
-      updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=$7, video_public_id=$8 WHERE id=$9 RETURNING *`;
-      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', videoFile.path, videoFile.filename, id];
+      updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=$7, video_public_id=NULL WHERE id=$8 RETURNING *`;
+      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', newVideoUrl, id];
     } else if (setVideoNull) {
       updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=NULL, video_public_id=NULL WHERE id=$7 RETURNING *`;
       updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', id];
@@ -220,67 +271,59 @@ router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) =>
       updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', id];
     }
 
-    // Fetch old video public_id before updating
-    const oldProductResult = await pool.query('SELECT video_public_id FROM products WHERE id=$1', [id]);
-    const oldVideoPublicId = oldProductResult.rows[0]?.video_public_id;
-
     const productResult = await client.query(updateQuery, updateParams);
 
-    if (productResult.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Destroy old Cloudinary video if replaced or removed
-    if ((videoFile || setVideoNull) && oldVideoPublicId) {
-      cloudinary.uploader.destroy(oldVideoPublicId, { resource_type: 'video' }).catch(console.error);
-    }
-
-    // Delete specified images
-    if (deleteImageIds) {
-      let idsToDelete;
-      try { idsToDelete = JSON.parse(deleteImageIds); }
-      catch {
-        await client.query('ROLLBACK');
-        return res.status(400).json({ error: 'Invalid deleteImageIds format' });
-      }
-      for (const imgId of idsToDelete) {
-        const imgResult = await client.query(
-          'SELECT cloudinary_public_id FROM product_images WHERE id = $1 AND product_id = $2',
-          [imgId, id]
-        );
-        if (imgResult.rows.length > 0) {
-          const publicId = imgResult.rows[0].cloudinary_public_id;
-          if (publicId) cloudinary.uploader.destroy(publicId).catch(console.error);
-          await client.query('DELETE FROM product_images WHERE id = $1', [imgId]);
-        }
-      }
+    // Delete specified images (DB rows now; storage cleanup happens after commit)
+    let deletedImages = [];
+    if (idsToDelete.length > 0) {
+      const imgResult = await client.query(
+        `SELECT id, cloudinary_public_id, image_thumb, image_medium, image_large
+         FROM product_images WHERE id = ANY($1::int[]) AND product_id = $2`,
+        [idsToDelete, id]
+      );
+      deletedImages = imgResult.rows;
+      await client.query('DELETE FROM product_images WHERE id = ANY($1::int[]) AND product_id = $2', [idsToDelete, id]);
     }
 
     // Add new images
-    if (imageFiles.length > 0) {
+    if (uploadedImages.length > 0) {
       const existingImages = await client.query(
         'SELECT COUNT(*) FROM product_images WHERE product_id = $1',
         [id]
       );
       const hasExisting = parseInt(existingImages.rows[0].count) > 0;
 
-      for (let i = 0; i < imageFiles.length; i++) {
+      for (let i = 0; i < uploadedImages.length; i++) {
+        const { thumb, medium, large } = uploadedImages[i];
         await client.query(
-          `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, is_primary) VALUES ($1, $2, $3, $4)`,
-          [id, imageFiles[i].path, imageFiles[i].filename, !hasExisting && i === 0]
+          `INSERT INTO product_images (product_id, image_url, cloudinary_public_id, image_thumb, image_medium, image_large, is_primary)
+           VALUES ($1, NULL, NULL, $2, $3, $4, $5)`,
+          [id, thumb, medium, large, !hasExisting && i === 0]
         );
       }
     }
 
     await client.query('COMMIT');
 
-    const imagesResult = await pool.query(
-      'SELECT * FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC',
-      [id]
-    );
+    const imagesResult = await pool.query(PRODUCT_IMAGES_SELECT, [id]);
 
     res.json({ ...productResult.rows[0], images: imagesResult.rows });
+
+    // Clean up replaced/removed storage assets (non-blocking, after commit)
+    if (videoFile || setVideoNull) {
+      if (oldVideoPublicId) {
+        cloudinary.uploader.destroy(oldVideoPublicId, { resource_type: 'video' }).catch(console.error);
+      } else if (oldVideoUrl) {
+        deleteMedia(oldVideoUrl).catch(console.error);
+      }
+    }
+    for (const img of deletedImages) {
+      if (img.cloudinary_public_id) {
+        cloudinary.uploader.destroy(img.cloudinary_public_id).catch(console.error);
+      } else {
+        deleteMedia([img.image_thumb, img.image_medium, img.image_large]).catch(console.error);
+      }
+    }
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error updating product:', err);
@@ -320,13 +363,13 @@ router.delete('/products/:id', authenticateAdmin, async (req, res) => {
 
     const { id } = req.params;
 
-    // Get Cloudinary public IDs before deleting
+    // Get storage references before deleting
     const imagesResult = await client.query(
-      'SELECT cloudinary_public_id FROM product_images WHERE product_id = $1',
+      'SELECT cloudinary_public_id, image_thumb, image_medium, image_large FROM product_images WHERE product_id = $1',
       [id]
     );
     const videoResult = await client.query(
-      'SELECT video_public_id FROM products WHERE id = $1',
+      'SELECT video_public_id, video_url FROM products WHERE id = $1',
       [id]
     );
 
@@ -343,12 +386,20 @@ router.delete('/products/:id', authenticateAdmin, async (req, res) => {
 
     await client.query('COMMIT');
 
-    // Destroy Cloudinary assets after DB commit (non-blocking)
+    // Destroy storage assets after DB commit (non-blocking)
     for (const img of imagesResult.rows) {
-      if (img.cloudinary_public_id) cloudinary.uploader.destroy(img.cloudinary_public_id).catch(console.error);
+      if (img.cloudinary_public_id) {
+        cloudinary.uploader.destroy(img.cloudinary_public_id).catch(console.error);
+      } else {
+        deleteMedia([img.image_thumb, img.image_medium, img.image_large]).catch(console.error);
+      }
     }
-    const videoPublicId = videoResult.rows[0]?.video_public_id;
-    if (videoPublicId) cloudinary.uploader.destroy(videoPublicId, { resource_type: 'video' }).catch(console.error);
+    const video = videoResult.rows[0];
+    if (video?.video_public_id) {
+      cloudinary.uploader.destroy(video.video_public_id, { resource_type: 'video' }).catch(console.error);
+    } else if (video?.video_url) {
+      deleteMedia(video.video_url).catch(console.error);
+    }
 
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
@@ -414,7 +465,12 @@ router.post('/test-notification', authenticateAdmin, async (req, res) => {
 // GET /api/admin/flash-sale
 router.get('/flash-sale', authenticateAdmin, async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM flash_sale_settings WHERE id = 1');
+    const result = await pool.query(`
+      SELECT id, active, end_date, banner_image_public_id, updated_at,
+        banner_image_thumb, banner_image_medium, banner_image_large,
+        COALESCE(banner_image_large, banner_image_url) AS banner_image_url
+      FROM flash_sale_settings WHERE id = 1
+    `);
     res.json(result.rows[0] || { id: 1, active: false, end_date: null, banner_image_url: null, banner_image_public_id: null });
   } catch (err) {
     console.error('Error fetching flash sale:', err);
@@ -423,7 +479,7 @@ router.get('/flash-sale', authenticateAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/flash-sale
-router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async (req, res) => {
+router.put('/flash-sale', authenticateAdmin, handleBannerUpload, async (req, res) => {
   try {
     const { active, end_date, clearBanner } = req.body;
     const bannerFile = req.file;
@@ -431,30 +487,48 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
     // Ensure the settings row always exists before updating
     await pool.query(`INSERT INTO flash_sale_settings (id, active) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);
 
-    const current = await pool.query('SELECT active, banner_image_public_id FROM flash_sale_settings WHERE id = 1');
+    const current = await pool.query(
+      `SELECT active, banner_image_public_id, banner_image_thumb, banner_image_medium, banner_image_large
+       FROM flash_sale_settings WHERE id = 1`
+    );
     const currentPublicId = current.rows[0]?.banner_image_public_id;
+    const currentThumb = current.rows[0]?.banner_image_thumb;
+    const currentMedium = current.rows[0]?.banner_image_medium;
+    const currentLarge = current.rows[0]?.banner_image_large;
     const wasActive = current.rows[0]?.active ?? false;
 
-    let bannerImageUrl;
-    let bannerImagePublicId;
-
+    let bannerVariants = null;
     if (bannerFile) {
-      bannerImageUrl = bannerFile.path;
-      bannerImagePublicId = bannerFile.filename;
-      if (currentPublicId) cloudinary.uploader.destroy(currentPublicId).catch(console.error);
-    } else if (clearBanner === 'true') {
-      bannerImageUrl = null;
-      bannerImagePublicId = null;
-      if (currentPublicId) cloudinary.uploader.destroy(currentPublicId).catch(console.error);
+      try {
+        bannerVariants = await uploadImage(bannerFile.buffer, 'norahairline/banners');
+      } catch (err) {
+        console.error('Banner upload error:', err);
+        return res.status(400).json({ error: err.message || 'Failed to process banner image' });
+      }
     }
+    const shouldClear = !bannerFile && clearBanner === 'true';
 
     const setClauses = [`active = $1`, `end_date = $2`, `updated_at = NOW()`];
     const values = [active === 'true' || active === true, end_date || null];
 
-    if (bannerImageUrl !== undefined) {
+    if (bannerVariants) {
       const nextIdx = values.length + 1;
-      setClauses.push(`banner_image_url = $${nextIdx}`, `banner_image_public_id = $${nextIdx + 1}`);
-      values.push(bannerImageUrl, bannerImagePublicId);
+      setClauses.push(
+        `banner_image_url = NULL`,
+        `banner_image_public_id = NULL`,
+        `banner_image_thumb = $${nextIdx}`,
+        `banner_image_medium = $${nextIdx + 1}`,
+        `banner_image_large = $${nextIdx + 2}`
+      );
+      values.push(bannerVariants.thumb, bannerVariants.medium, bannerVariants.large);
+    } else if (shouldClear) {
+      setClauses.push(
+        `banner_image_url = NULL`,
+        `banner_image_public_id = NULL`,
+        `banner_image_thumb = NULL`,
+        `banner_image_medium = NULL`,
+        `banner_image_large = NULL`
+      );
     }
 
     const result = await pool.query(
@@ -463,6 +537,15 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
     );
 
     res.json(result.rows[0]);
+
+    // Clean up the replaced/removed banner (non-blocking, after response)
+    if (bannerVariants || shouldClear) {
+      if (currentPublicId) {
+        cloudinary.uploader.destroy(currentPublicId).catch(console.error);
+      } else {
+        deleteMedia([currentThumb, currentMedium, currentLarge]).catch(console.error);
+      }
+    }
 
     // Notify subscribers when sale is switched on (not on every save)
     const nowActive = active === 'true' || active === true;
@@ -483,7 +566,12 @@ router.put('/flash-sale', authenticateAdmin, upload.single('bannerImage'), async
 // GET /api/admin/gallery
 router.get('/gallery', authenticateAdmin, async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM gallery_items ORDER BY created_at DESC');
+    const result = await pool.query(`
+      SELECT id, media_type, created_at, cloudinary_public_id,
+        file_thumb, file_medium, file_large,
+        COALESCE(file_medium, file_url) AS file_url
+      FROM gallery_items ORDER BY created_at DESC
+    `);
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching gallery:', err);
@@ -498,14 +586,25 @@ router.post('/gallery', authenticateAdmin, handleGalleryUpload, async (req, res)
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
     const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'image';
+
+    let fileUrl = null, thumb = null, medium = null, large = null;
+    if (mediaType === 'video') {
+      fileUrl = await uploadVideo(file.buffer, 'norahairline/gallery', file.mimetype, file.originalname);
+    } else {
+      ({ thumb, medium, large } = await uploadImage(file.buffer, 'norahairline/gallery'));
+    }
+
     const result = await pool.query(
-      'INSERT INTO gallery_items (file_url, cloudinary_public_id, media_type) VALUES ($1, $2, $3) RETURNING *',
-      [file.path, file.filename, mediaType]
+      `INSERT INTO gallery_items (file_url, cloudinary_public_id, media_type, file_thumb, file_medium, file_large)
+       VALUES ($1, NULL, $2, $3, $4, $5)
+       RETURNING id, media_type, created_at, file_thumb, file_medium, file_large,
+         COALESCE(file_medium, file_url) AS file_url`,
+      [fileUrl, mediaType, thumb, medium, large]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error uploading gallery item:', err);
-    res.status(500).json({ error: 'Failed to upload gallery item' });
+    res.status(400).json({ error: err.message || 'Failed to upload gallery item' });
   }
 });
 
@@ -522,6 +621,10 @@ router.delete('/gallery/:id', authenticateAdmin, async (req, res) => {
     if (item.cloudinary_public_id) {
       const resourceType = item.media_type === 'video' ? 'video' : 'image';
       cloudinary.uploader.destroy(item.cloudinary_public_id, { resource_type: resourceType }).catch(console.error);
+    } else if (item.media_type === 'video') {
+      if (item.file_url) deleteMedia(item.file_url).catch(console.error);
+    } else {
+      deleteMedia([item.file_thumb, item.file_medium, item.file_large]).catch(console.error);
     }
 
     res.json({ message: 'Gallery item deleted successfully' });

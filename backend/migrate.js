@@ -19,6 +19,18 @@ async function run() {
   await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS cloudinary_public_id VARCHAR(500)`);
   console.log('product_images: cloudinary_public_id column ready');
 
+  // R2 image variants — image_url/file_url/banner_image_url stay as the
+  // legacy Cloudinary fallback for rows that predate this migration
+  await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_thumb VARCHAR(500)`);
+  await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_medium VARCHAR(500)`);
+  await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_large VARCHAR(500)`);
+  console.log('product_images: image_thumb, image_medium, image_large columns ready');
+
+  await client.query(`ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_thumb VARCHAR(500)`);
+  await client.query(`ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_medium VARCHAR(500)`);
+  await client.query(`ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_large VARCHAR(500)`);
+  console.log('gallery_items: file_thumb, file_medium, file_large columns ready');
+
   // Create orders table
   await client.query(`
     CREATE TABLE IF NOT EXISTS orders (
@@ -55,6 +67,12 @@ async function run() {
     INSERT INTO flash_sale_settings (id, active) VALUES (1, false) ON CONFLICT (id) DO NOTHING
   `);
   console.log('flash_sale_settings table ready');
+
+  // R2 banner variants — banner_image_url stays as the legacy Cloudinary fallback
+  await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_thumb VARCHAR(500)`);
+  await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_medium VARCHAR(500)`);
+  await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_large VARCHAR(500)`);
+  console.log('flash_sale_settings: banner_image_thumb, banner_image_medium, banner_image_large columns ready');
 
   await client.end();
   console.log('Migration complete');

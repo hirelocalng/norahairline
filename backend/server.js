@@ -43,6 +43,11 @@ async function runMigrations() {
     // product_images: cloudinary support
     await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS cloudinary_public_id VARCHAR(500)`);
 
+    // product_images: R2 variants (image_url kept for legacy Cloudinary rows)
+    await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_thumb VARCHAR(500)`);
+    await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_medium VARCHAR(500)`);
+    await client.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_large VARCHAR(500)`);
+
     // Gallery items table
     await client.query(`
       CREATE TABLE IF NOT EXISTS gallery_items (
@@ -54,6 +59,16 @@ async function runMigrations() {
       )
     `);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_gallery_items_created_at ON gallery_items(created_at DESC)`);
+
+    // gallery_items: R2 variants (file_url kept for legacy Cloudinary rows)
+    await client.query(`ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_thumb VARCHAR(500)`);
+    await client.query(`ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_medium VARCHAR(500)`);
+    await client.query(`ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_large VARCHAR(500)`);
+
+    // flash_sale_settings: R2 banner variants (banner_image_url kept for legacy Cloudinary rows)
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_thumb VARCHAR(500)`);
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_medium VARCHAR(500)`);
+    await client.query(`ALTER TABLE flash_sale_settings ADD COLUMN IF NOT EXISTS banner_image_large VARCHAR(500)`);
 
     console.log('Migrations complete');
   } catch (err) {
@@ -91,7 +106,8 @@ app.get('/api/health', (req, res) => {
 app.get('/api/flash-sale', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT active, end_date, banner_image_url FROM flash_sale_settings WHERE id = 1'
+      `SELECT active, end_date, COALESCE(banner_image_large, banner_image_url) AS banner_image_url
+       FROM flash_sale_settings WHERE id = 1`
     );
     res.json(result.rows[0] || { active: false, end_date: null, banner_image_url: null });
   } catch (err) {
@@ -103,7 +119,8 @@ app.get('/api/flash-sale', async (req, res) => {
 app.get('/api/gallery', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, file_url, media_type, created_at FROM gallery_items ORDER BY created_at DESC'
+      `SELECT id, media_type, created_at, COALESCE(file_medium, file_url) AS file_url
+       FROM gallery_items ORDER BY created_at DESC`
     );
     res.json(result.rows);
   } catch (err) {

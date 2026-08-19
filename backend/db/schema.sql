@@ -19,10 +19,16 @@ CREATE TABLE IF NOT EXISTS products (
 ALTER TABLE products ADD COLUMN IF NOT EXISTS original_price DECIMAL(10, 2) DEFAULT NULL;
 
 -- Product images table
+-- image_url holds legacy Cloudinary URLs; new uploads go to R2 and populate
+-- image_thumb/image_medium/image_large instead, with image_url left NULL.
 CREATE TABLE IF NOT EXISTS product_images (
   id SERIAL PRIMARY KEY,
   product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
-  image_url VARCHAR(500) NOT NULL,
+  image_url VARCHAR(500),
+  cloudinary_public_id VARCHAR(500),
+  image_thumb VARCHAR(500),
+  image_medium VARCHAR(500),
+  image_large VARCHAR(500),
   is_primary BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,11 +48,17 @@ CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(produ
 CREATE INDEX IF NOT EXISTS idx_product_images_is_primary ON product_images(is_primary);
 
 -- Gallery items table
+-- file_url holds legacy Cloudinary URLs; new image uploads go to R2 and
+-- populate file_thumb/file_medium/file_large instead, with file_url left
+-- NULL (videos are uploaded as-is and always use file_url).
 CREATE TABLE IF NOT EXISTS gallery_items (
   id SERIAL PRIMARY KEY,
-  file_url VARCHAR(500) NOT NULL,
+  file_url VARCHAR(500),
   cloudinary_public_id VARCHAR(500),
   media_type VARCHAR(10) NOT NULL DEFAULT 'image',
+  file_thumb VARCHAR(500),
+  file_medium VARCHAR(500),
+  file_large VARCHAR(500),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

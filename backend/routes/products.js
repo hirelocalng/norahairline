@@ -2,13 +2,25 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
+// product_images select shared with the single-product route below —
+// image_url/thumb/medium/large all fall back to the legacy Cloudinary
+// image_url column so pre-migration products keep rendering.
+const PRODUCT_IMAGES_SELECT = `
+  SELECT id, product_id, is_primary, created_at,
+    COALESCE(image_thumb, image_url) AS image_thumb,
+    COALESCE(image_medium, image_url) AS image_medium,
+    COALESCE(image_large, image_url) AS image_large,
+    COALESCE(image_medium, image_url) AS image_url
+  FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC
+`;
+
 // GET all available products (with primary image)
 router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
     let query = `
       SELECT p.*,
-        pi.image_url AS primary_image
+        COALESCE(pi.image_thumb, pi.image_url) AS primary_image
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = true
       WHERE p.available = true
@@ -35,7 +47,7 @@ router.get('/featured', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT p.*,
-        pi.image_url AS primary_image
+        COALESCE(pi.image_thumb, pi.image_url) AS primary_image
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = true
       WHERE p.available = true
@@ -80,10 +92,7 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    const imagesResult = await pool.query(
-      'SELECT * FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC',
-      [id]
-    );
+    const imagesResult = await pool.query(PRODUCT_IMAGES_SELECT, [id]);
 
     const product = {
       ...productResult.rows[0],
