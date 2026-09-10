@@ -119,6 +119,12 @@ export default function GallerySection() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const dragState = useRef({
+    active: false,
+    startX: 0,
+    startScrollLeft: 0,
+    moved: false,
+  });
 
   useEffect(() => {
     getGallery()
@@ -132,6 +138,46 @@ export default function GallerySection() {
   const prev = () => setLightboxIndex(i => Math.max(0, i - 1));
   const next = () => setLightboxIndex(i => Math.min(items.length - 1, i + 1));
 
+  const handleDragStart = (event) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+
+    const container = event.currentTarget;
+    dragState.current = {
+      active: true,
+      startX: event.clientX,
+      startScrollLeft: container.scrollLeft,
+      moved: false,
+    };
+    container.setPointerCapture(event.pointerId);
+  };
+
+  const handleDragMove = (event) => {
+    if (!dragState.current.active) return;
+
+    const container = event.currentTarget;
+    const distance = event.clientX - dragState.current.startX;
+    if (Math.abs(distance) > 5) dragState.current.moved = true;
+    container.scrollLeft = dragState.current.startScrollLeft - distance;
+  };
+
+  const handleDragEnd = (event) => {
+    if (!dragState.current.active) return;
+
+    dragState.current.active = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  const handleItemClick = (index, event) => {
+    if (dragState.current.moved) {
+      event.preventDefault();
+      dragState.current.moved = false;
+      return;
+    }
+    open(index);
+  };
+
   if (!loading && items.length === 0) return null;
 
   return (
@@ -144,19 +190,25 @@ export default function GallerySection() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="gallery-carousel">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="aspect-square rounded-xl bg-burgundy-50 animate-pulse" />
+                <div key={i} className="gallery-carousel-item aspect-square rounded-xl bg-burgundy-50 animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div
+              className="gallery-carousel"
+              onPointerDown={handleDragStart}
+              onPointerMove={handleDragMove}
+              onPointerUp={handleDragEnd}
+              onPointerCancel={handleDragEnd}
+            >
               {items.map((item, index) =>
                 item.media_type === 'video' ? (
                   <button
                     key={item.id}
-                    onClick={() => open(index)}
-                    className="relative aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer w-full"
+                    onClick={(event) => handleItemClick(index, event)}
+                    className="gallery-carousel-item relative aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer"
                   >
                     <video
                       src={`${item.file_url}#t=0.5`}
@@ -176,8 +228,8 @@ export default function GallerySection() {
                 ) : (
                   <button
                     key={item.id}
-                    onClick={() => open(index)}
-                    className="aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer w-full"
+                    onClick={(event) => handleItemClick(index, event)}
+                    className="gallery-carousel-item aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer"
                   >
                     <img
                       src={item.file_url}
