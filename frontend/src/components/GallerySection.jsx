@@ -121,7 +121,7 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
 // Must be at least the widest cards-per-view (4 on desktop).
 const MAX_CLONES = 5;
 
-function QueenCard({ item, index, clone, onFail }) {
+function QueenCard({ item, index, clone }) {
   const cloneProps = clone ? { 'data-qc-clone': '', 'aria-hidden': true } : {};
   const tabIndex = clone ? -1 : undefined;
 
@@ -131,11 +131,10 @@ function QueenCard({ item, index, clone, onFail }) {
         <>
           <video
             className="qc-media"
-            src={`${item.file_url}#t=0.1`}
+            src={item.file_url ? `${item.file_url}#t=0.1` : undefined}
             poster={item.poster_url || undefined}
             playsInline
             preload={clone ? 'none' : 'metadata'}
-            onError={() => onFail(item.id)}
           />
           <button type="button" className="qc-play" data-qc-play="" tabIndex={tabIndex} aria-label="Play video">
             <span className="qc-play-icon">
@@ -156,7 +155,6 @@ function QueenCard({ item, index, clone, onFail }) {
             loading="lazy"
             decoding="async"
             draggable={false}
-            onError={() => onFail(item.id)}
           />
         </button>
       )}
@@ -166,11 +164,9 @@ function QueenCard({ item, index, clone, onFail }) {
 
 export default function GallerySection() {
   const [items, setItems] = useState([]);
-  const [failedIds, setFailedIds] = useState(() => new Set());
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const rootRef = useRef(null);
-  const positionRef = useRef(0);
 
   useEffect(() => {
     getGallery()
@@ -179,34 +175,22 @@ export default function GallerySection() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Media that fails to load (e.g. a dead URL) is dropped rather than shown
-  // as a broken-image icon.
-  const markFailed = useCallback((id) => {
-    setFailedIds(prev => (prev.has(id) ? prev : new Set(prev).add(id)));
-  }, []);
-
-  const visible = items.filter(item => item.file_url && !failedIds.has(item.id));
-  const clones = visible.length > 1 ? Math.min(visible.length, MAX_CLONES) : 0;
-  const visibleKey = visible.map(item => item.id).join(',');
+  const clones = items.length > 1 ? Math.min(items.length, MAX_CLONES) : 0;
 
   useEffect(() => {
-    if (loading || !rootRef.current || visible.length === 0) return;
-    const destroy = initQueensCarousel(rootRef.current, {
-      count: visible.length,
+    if (loading || !rootRef.current || items.length === 0) return;
+    return initQueensCarousel(rootRef.current, {
+      count: items.length,
       clones,
-      startIndex: Math.min(positionRef.current, visible.length - 1),
       onOpen: setLightboxIndex,
     });
-    return () => { positionRef.current = destroy(); };
-    // visibleKey captures every change to `visible` that matters here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, visibleKey]);
+  }, [loading, items, clones]);
 
   const close = () => setLightboxIndex(null);
   const prev = () => setLightboxIndex(i => Math.max(0, i - 1));
-  const next = () => setLightboxIndex(i => Math.min(visible.length - 1, i + 1));
+  const next = () => setLightboxIndex(i => Math.min(items.length - 1, i + 1));
 
-  if (!loading && visible.length === 0) return null;
+  if (!loading && items.length === 0) return null;
 
   return (
     <>
@@ -234,18 +218,18 @@ export default function GallerySection() {
               aria-label="Nora Hair Queens gallery"
             >
               <div className="qc-track" data-qc-track="">
-                {visible.slice(visible.length - clones).map((item, i) => (
-                  <QueenCard key={`head-${item.id}`} item={item} index={visible.length - clones + i} clone onFail={markFailed} />
+                {items.slice(items.length - clones).map((item, i) => (
+                  <QueenCard key={`head-${item.id}`} item={item} index={items.length - clones + i} clone />
                 ))}
-                {visible.map((item, i) => (
-                  <QueenCard key={item.id} item={item} index={i} onFail={markFailed} />
+                {items.map((item, i) => (
+                  <QueenCard key={item.id} item={item} index={i} />
                 ))}
-                {visible.slice(0, clones).map((item, i) => (
-                  <QueenCard key={`tail-${item.id}`} item={item} index={i} clone onFail={markFailed} />
+                {items.slice(0, clones).map((item, i) => (
+                  <QueenCard key={`tail-${item.id}`} item={item} index={i} clone />
                 ))}
               </div>
 
-              {visible.length > 1 && (
+              {items.length > 1 && (
                 <>
                   <button type="button" className="qc-arrow qc-prev" data-qc-prev="" aria-label="Previous">
                     <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,14 +242,14 @@ export default function GallerySection() {
                     </svg>
                   </button>
                   <div className="qc-dots">
-                    {visible.map((item, i) => (
+                    {items.map((item, i) => (
                       <button
                         key={item.id}
                         type="button"
                         className="qc-dot"
                         data-qc-dot=""
                         data-qc-index={i}
-                        aria-label={`Go to item ${i + 1} of ${visible.length}`}
+                        aria-label={`Go to item ${i + 1} of ${items.length}`}
                       />
                     ))}
                   </div>
@@ -276,10 +260,10 @@ export default function GallerySection() {
         </div>
       </section>
 
-      {lightboxIndex !== null && visible[lightboxIndex] && (
+      {lightboxIndex !== null && items[lightboxIndex] && (
         <Lightbox
-          item={visible[lightboxIndex]}
-          items={visible}
+          item={items[lightboxIndex]}
+          items={items}
           onClose={close}
           onPrev={prev}
           onNext={next}
