@@ -8,6 +8,34 @@ const { cloudinary, handleUpload, handleBannerUpload, handleGalleryUpload } = re
 const { uploadImage, uploadVideo, deleteMedia } = require('../utils/media');
 const { sendStatusUpdate } = require('../services/email');
 const { sendNewProductNotification, sendFlashSaleNotification } = require('../services/notifications');
+const { loginLimiter, adminLimiter } = require('../middleware/security');
+const { cleanLine, cleanText, isEmail, toPositiveInt, toPrice } = require('../utils/validate');
+
+router.use(adminLimiter);
+
+// Every :id in this router must be a positive integer; anything else is a 404
+// rather than a Postgres "invalid input syntax" 500.
+router.param('id', (req, res, next, value) => {
+  const id = toPositiveInt(value);
+  if (!id) return res.status(404).json({ error: 'Not found' });
+  req.params.id = id;
+  next();
+});
+
+// Shared validation for product create/update (multipart fields arrive as strings).
+function parseProductFields(body) {
+  const name = cleanLine(body.name, 200);
+  const price = toPrice(body.price);
+  const hasOriginal = body.original_price !== undefined && body.original_price !== '' && body.original_price !== 'null';
+  const originalPrice = hasOriginal ? toPrice(body.original_price) : null;
+  const category = cleanLine(body.category, 100);
+  const description = cleanText(body.description, 5000);
+
+  if (!name || !category) return { error: 'Name, price, and category are required' };
+  if (price === null) return { error: 'Price must be a positive number' };
+  if (hasOriginal && originalPrice === null) return { error: 'Original price must be a positive number' };
+  return { name, price, originalPrice, category, description, available: body.available !== 'false' };
+}
 
 // product_images select shared by every route that returns a product's images —
 // image_url/thumb/medium/large all fall back to the legacy Cloudinary image_url
@@ -22,15 +50,16 @@ const PRODUCT_IMAGES_SELECT = `
 `;
 
 // POST /api/admin/login
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = cleanLine(req.body?.email, 254).toLowerCase();
+    const password = req.body?.password;
 
-    if (!email || !password) {
+    if (!isEmail(email) || typeof password !== 'string' || !password || password.length > 200) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const result = await pool.query('SELECT * FROM admins WHERE email = $1', [email]);
+    const result = await pool.query('SELECT * FROM admins WHERE LOWER(email) = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -39,13 +68,14 @@ router.post('/login', async (req, res) => {
     const isValid = await bcrypt.compare(password, admin.password_hash);
 
     if (!isValid) {
+      console.warn(`[auth] failed admin login for ${email} from ${req.ip}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
       { id: admin.id, email: admin.email },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '24h', algorithm: 'HS256' }
     );
 
     res.json({ token, admin: { id: admin.id, email: admin.email } });
@@ -55,17 +85,21 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Everything below requires a valid admin token. Routes also name
+// authenticateAdmin individually; this guard covers any added later.
+router.use(authenticateAdmin);
+
 // POST /api/admin/change-password
 router.post('/change-password', authenticateAdmin, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword) {
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || !currentPassword || !newPassword) {
       return res.status(400).json({ error: 'Current and new password are required' });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    if (newPassword.length < 8 || newPassword.length > 200) {
+      return res.status(400).json({ error: 'New password must be between 8 and 200 characters' });
     }
 
     const result = await pool.query('SELECT * FROM admins WHERE id = $1', [req.admin.id]);
@@ -149,15 +183,12 @@ router.get('/products/:id', authenticateAdmin, async (req, res) => {
 
 // POST /api/admin/products - create product
 router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
-  const { name, price, original_price, category, description, available } = req.body;
-
-  if (!name || !price || !category) {
-    return res.status(400).json({ error: 'Name, price, and category are required' });
-  }
+  const fields = parseProductFields(req.body);
+  if (fields.error) return res.status(400).json({ error: fields.error });
+  const { name, price, originalPrice, category, description, available } = fields;
 
   const imageFiles = req.files?.images || [];
   const videoFile = req.files?.video?.[0] || null;
-  const originalPrice = original_price ? parseFloat(original_price) : null;
 
   // Upload media to R2 before touching the DB
   let videoUrl = null;
@@ -174,14 +205,15 @@ router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
     return res.status(400).json({ error: err.message || 'Failed to process uploaded media' });
   }
 
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     const productResult = await client.query(
       `INSERT INTO products (name, price, original_price, category, description, available, video_url, video_public_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, NULL) RETURNING *`,
-      [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', videoUrl]
+      [name, price, originalPrice, category, description, available, videoUrl]
     );
 
     const product = productResult.rows[0];
@@ -207,28 +239,33 @@ router.post('/products', authenticateAdmin, handleUpload, async (req, res) => {
       console.error('[Admin] Push notification failed for new product:', err.message);
     });
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) await client.query('ROLLBACK').catch(() => {});
     console.error('Error creating product:', err);
     res.status(500).json({ error: 'Failed to create product' });
   } finally {
-    client.release();
+    client?.release();
   }
 });
 
 // PUT /api/admin/products/:id - update product
 router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) => {
   const { id } = req.params;
-  const { name, price, original_price, category, description, available, deleteImageIds, deleteVideo } = req.body;
+  const { deleteImageIds, deleteVideo } = req.body;
+  const fields = parseProductFields(req.body);
+  if (fields.error) return res.status(400).json({ error: fields.error });
+  const { name, price, originalPrice, category, description, available } = fields;
 
   const imageFiles = req.files?.images || [];
   const videoFile = req.files?.video?.[0] || null;
   const setVideoNull = deleteVideo === 'true';
-  const originalPrice = original_price ? parseFloat(original_price) : null;
 
   let idsToDelete = [];
   if (deleteImageIds) {
     try { idsToDelete = JSON.parse(deleteImageIds); }
     catch { return res.status(400).json({ error: 'Invalid deleteImageIds format' }); }
+    if (!Array.isArray(idsToDelete) || !idsToDelete.every(v => toPositiveInt(v))) {
+      return res.status(400).json({ error: 'Invalid deleteImageIds format' });
+    }
   }
 
   // Upload media to R2 before touching the DB
@@ -246,8 +283,9 @@ router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) =>
     return res.status(400).json({ error: err.message || 'Failed to process uploaded media' });
   }
 
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     const oldProductResult = await client.query('SELECT video_public_id, video_url FROM products WHERE id=$1', [id]);
@@ -262,13 +300,13 @@ router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) =>
     let updateQuery, updateParams;
     if (videoFile) {
       updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=$7, video_public_id=NULL WHERE id=$8 RETURNING *`;
-      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', newVideoUrl, id];
+      updateParams = [name, price, originalPrice, category, description, available, newVideoUrl, id];
     } else if (setVideoNull) {
       updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6, video_url=NULL, video_public_id=NULL WHERE id=$7 RETURNING *`;
-      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', id];
+      updateParams = [name, price, originalPrice, category, description, available, id];
     } else {
       updateQuery = `UPDATE products SET name=$1, price=$2, original_price=$3, category=$4, description=$5, available=$6 WHERE id=$7 RETURNING *`;
-      updateParams = [name, parseFloat(price), originalPrice, category, description || '', available !== 'false', id];
+      updateParams = [name, price, originalPrice, category, description, available, id];
     }
 
     const productResult = await client.query(updateQuery, updateParams);
@@ -325,11 +363,11 @@ router.put('/products/:id', authenticateAdmin, handleUpload, async (req, res) =>
       }
     }
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) await client.query('ROLLBACK').catch(() => {});
     console.error('Error updating product:', err);
     res.status(500).json({ error: 'Failed to update product' });
   } finally {
-    client.release();
+    client?.release();
   }
 });
 
@@ -338,6 +376,9 @@ router.patch('/products/:id/availability', authenticateAdmin, async (req, res) =
   try {
     const { id } = req.params;
     const { available } = req.body;
+    if (typeof available !== 'boolean') {
+      return res.status(400).json({ error: 'available must be true or false' });
+    }
 
     const result = await pool.query(
       'UPDATE products SET available = $1 WHERE id = $2 RETURNING *',
@@ -357,8 +398,9 @@ router.patch('/products/:id/availability', authenticateAdmin, async (req, res) =
 
 // DELETE /api/admin/products/:id
 router.delete('/products/:id', authenticateAdmin, async (req, res) => {
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     const { id } = req.params;
@@ -403,11 +445,11 @@ router.delete('/products/:id', authenticateAdmin, async (req, res) => {
 
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) await client.query('ROLLBACK').catch(() => {});
     console.error('Error deleting product:', err);
     res.status(500).json({ error: 'Failed to delete product' });
   } finally {
-    client.release();
+    client?.release();
   }
 });
 
@@ -458,7 +500,8 @@ router.post('/test-notification', authenticateAdmin, async (req, res) => {
     const result = await sendFlashSaleNotification();
     res.json({ ok: true, onesignal: result });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('[Admin] test notification failed:', err);
+    res.status(502).json({ error: `Push notification failed: ${err.message}` });
   }
 });
 
@@ -483,6 +526,9 @@ router.put('/flash-sale', authenticateAdmin, handleBannerUpload, async (req, res
   try {
     const { active, end_date, clearBanner } = req.body;
     const bannerFile = req.file;
+    if (end_date && Number.isNaN(Date.parse(end_date))) {
+      return res.status(400).json({ error: 'Invalid end date' });
+    }
 
     // Ensure the settings row always exists before updating
     await pool.query(`INSERT INTO flash_sale_settings (id, active) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);

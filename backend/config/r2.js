@@ -8,6 +8,9 @@ if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.
 
 const r2Client = new S3Client({
   region: 'auto',
+  // Fail fast instead of hanging an admin upload when R2 is unreachable
+  requestHandler: { connectionTimeout: 5000, requestTimeout: 60000 },
+  maxAttempts: 3,
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
     accessKeyId: process.env.R2_ACCESS_KEY_ID,

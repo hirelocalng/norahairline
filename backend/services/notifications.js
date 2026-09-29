@@ -1,13 +1,10 @@
 const ONESIGNAL_API_URL = 'https://onesignal.com/api/v1/notifications';
-const SHOP_URL = 'https://norahairline.up.railway.app/shop';
+const SHOP_URL = 'https://norahairline.com/shop';
+const PUSH_TIMEOUT_MS = 10000;
 
 async function sendPush(heading, content) {
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
   const appId  = process.env.ONESIGNAL_APP_ID;
-
-  console.log('[OneSignal] sendPush called:', heading);
-  console.log('[OneSignal] ONESIGNAL_APP_ID set:', !!appId);
-  console.log('[OneSignal] ONESIGNAL_REST_API_KEY set:', !!apiKey);
 
   if (!apiKey) {
     console.error('[OneSignal] ONESIGNAL_REST_API_KEY is not set — cannot send push');
@@ -26,8 +23,6 @@ async function sendPush(heading, content) {
     url: SHOP_URL,
   };
 
-  console.log('[OneSignal] Sending payload:', JSON.stringify(payload));
-
   let res, data;
   try {
     res = await fetch(ONESIGNAL_API_URL, {
@@ -37,10 +32,11 @@ async function sendPush(heading, content) {
         'Authorization': `Basic ${apiKey}`,
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(PUSH_TIMEOUT_MS),
     });
     data = await res.json();
   } catch (err) {
-    console.error('[OneSignal] Network/fetch error:', err.message);
+    console.error('[OneSignal] request failed:', err.name === 'TimeoutError' ? `timed out after ${PUSH_TIMEOUT_MS}ms` : err.message);
     throw err;
   }
 

@@ -5,52 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Nora Hair Line - Luxury for less. Premium wigs, frontals, bundles and more." />
-    <meta name="theme-color" content="#0D4A47" />
+    <meta name="theme-color" content="#6E1A3C" />
     <meta name="google-site-verification" content="wNmi-HFvE3stOY3MPOoWtHlw1JYqo4ecyNgb1hG6VMA" />
     <link rel="manifest" href="/manifest.json" />
     <title>Nora Hair Line | Luxury for less...</title>
-    <script src="https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "76f4a464-6f32-4364-ae9b-d39b8223087f",
-          serviceWorkerParam: { scope: "/" },
-          serviceWorkerPath: "OneSignalSDKWorker.js",
-          notifyButton: {
-            enable: true,
-            size: "medium",
-            position: "bottom-right",
-            showCredit: false,
-            text: {
-              "tip.state.unsubscribed": "Get notified about new arrivals & sales",
-              "tip.state.subscribed": "You're subscribed to notifications",
-              "tip.state.blocked": "Notifications are blocked",
-              "message.prenotify": "Click to subscribe to notifications",
-              "message.action.subscribed": "Thanks for subscribing!",
-              "message.action.resubscribed": "You're subscribed to notifications",
-              "message.action.unsubscribed": "You won't receive notifications anymore",
-            },
-          },
-        });
-
-        // Hide the bell widget once the user has subscribed
-        OneSignal.User.PushSubscription.addEventListener("change", function(event) {
-          if (event.current.optedIn) {
-            var bell = document.getElementById("onesignal-bell-container");
-            if (bell) bell.style.display = "none";
-          }
-        });
-
-        // Also hide immediately if already subscribed on page load
-        var isSubscribed = OneSignal.User.PushSubscription.optedIn;
-        if (isSubscribed) {
-          var bell = document.getElementById("onesignal-bell-container");
-          if (bell) bell.style.display = "none";
-        }
-      });
-    </script>
+    <script src="/onesignal-init.js" defer></script>
   </head>
   <body>
     <div id="root"></div>

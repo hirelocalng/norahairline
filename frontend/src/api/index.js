@@ -14,6 +14,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// An expired/invalid admin session: clear it and send the admin to log in,
+// instead of leaving every admin screen failing silently.
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    const url = error.config?.url || '';
+    if (error.response?.status === 401 && url.startsWith('/admin') && url !== '/admin/login') {
+      localStorage.removeItem('nora_admin_token');
+      localStorage.removeItem('nora_admin_user');
+      if (!window.location.pathname.startsWith('/admin/login')) {
+        window.location.assign('/admin/login');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Public product endpoints
 export const getProducts = (category) =>
   api.get('/products', { params: category && category !== 'All' ? { category } : {} });

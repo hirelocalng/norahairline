@@ -3,12 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { getProduct, getProducts } from '../api';
 import ProductCard from '../components/ProductCard';
 import FlashSaleBanner from '../components/FlashSaleBanner';
-
-const WHATSAPP_NUMBER = '2348038707795';
+import SmartImage from '../components/SmartImage';
+import { whatsappLink } from '../config';
 
 function buildWhatsAppLink(name, price) {
   const text = `Hi Nora Hair Line! I want to order: ${name} - ₦${Number(price).toLocaleString()}. Please confirm availability and delivery details.`;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  return whatsappLink(text);
 }
 
 export default function ProductDetail() {
@@ -97,10 +97,17 @@ export default function ProductDetail() {
             {/* Main Image */}
             <div className="bg-white rounded-2xl overflow-hidden shadow-md mb-4 aspect-square">
               {activeImg ? (
-                <img
-                  src={activeImg.image_url}
+                <SmartImage
+                  key={activeImg.id}
+                  src={activeImg.image_large || activeImg.image_url}
+                  srcSet={activeImg.image_large ? `${activeImg.image_medium} 800w, ${activeImg.image_large} 1284w` : undefined}
+                  sizes="(min-width: 1024px) 600px, 100vw"
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  width="800"
+                  height="800"
+                  eager
+                  className="w-full h-full"
+                  imgClassName="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-burgundy-50 to-burgundy-100">
@@ -123,7 +130,7 @@ export default function ProductDetail() {
                       idx === activeImage ? 'border-gold-500 shadow-md' : 'border-gray-200 hover:border-burgundy-400'
                     }`}
                   >
-                    <img src={img.image_url} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img src={img.image_thumb || img.image_url} alt={`View ${idx + 1}`} width="64" height="64" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -137,6 +144,7 @@ export default function ProductDetail() {
                   src={product.video_url}
                   controls
                   playsInline
+                  preload="metadata"
                   className="w-full rounded-2xl shadow-md bg-black"
                   style={{ maxHeight: '360px' }}
                 >

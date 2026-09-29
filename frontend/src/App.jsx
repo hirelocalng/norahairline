@@ -17,6 +17,9 @@ import AdminOrders from './pages/admin/AdminOrders';
 import ProductForm from './pages/admin/ProductForm';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminGallery from './pages/admin/AdminGallery';
+import NotFound from './pages/NotFound';
+import ErrorBoundary from './components/ErrorBoundary';
+import CartToast from './components/CartToast';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -71,21 +74,24 @@ function AppRoutes() {
       <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
-      {/* Catch all */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Catch all — the server also returns a 404 status for these */}
+      <Route path="*" element={<CustomerLayout><NotFound /></CustomerLayout>} />
     </Routes>
+    <CartToast />
     </>
   );
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <AppRoutes />
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <CartProvider>
+            <AppRoutes />
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

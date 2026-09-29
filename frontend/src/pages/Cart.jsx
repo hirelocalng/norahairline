@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useCart, MAX_QUANTITY } from '../context/CartContext';
 
 export default function Cart() {
   const { items, removeItem, updateQty, total, count } = useCart();
@@ -45,7 +45,7 @@ export default function Cart() {
                 {/* Image */}
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-burgundy-50 flex-shrink-0">
                   {item.primary_image ? (
-                    <img src={item.primary_image} alt={item.name} className="w-full h-full object-cover" />
+                    <img src={item.primary_image} alt={item.name} width="80" height="80" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <svg className="w-8 h-8 text-burgundy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,6 +67,7 @@ export default function Cart() {
                   <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
                     <button
                       onClick={() => updateQty(item.id, item.quantity - 1)}
+                      aria-label={`Decrease quantity of ${item.name}`}
                       className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-burgundy-600 font-bold text-lg leading-none"
                     >
                       −
@@ -74,7 +75,9 @@ export default function Cart() {
                     <span className="w-6 text-center text-sm font-semibold text-gray-800">{item.quantity}</span>
                     <button
                       onClick={() => updateQty(item.id, item.quantity + 1)}
-                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-burgundy-600 font-bold text-lg leading-none"
+                      disabled={item.quantity >= MAX_QUANTITY}
+                      aria-label={`Increase quantity of ${item.name}`}
+                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-burgundy-600 font-bold text-lg leading-none disabled:opacity-30"
                     >
                       +
                     </button>

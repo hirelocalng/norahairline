@@ -4,10 +4,10 @@
 .queens-carousel {
   --qc-gap: 1rem;
   --qc-per-view: 1.3;
-  --qc-burgundy: #7A0F3D;
-  --qc-burgundy-dark: #5A0A2C;
-  --qc-gold: #D4B06A;
-  --qc-tile: #F9EEF3;
+  --qc-burgundy: #6E1A3C;
+  --qc-burgundy-dark: #53142D;
+  --qc-gold: #C9A96E;
+  --qc-tile: #F5EFF1;
   position: relative;
 }
 

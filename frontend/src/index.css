@@ -35,18 +35,247 @@
     @apply w-16 h-1 bg-gold-500 mx-auto my-4;
   }
 
+  /* Lift + deeper shadow on hover (desktop), gentle press on tap (touch).
+     The bigger shadow lives on ::after and fades in, so only transform and
+     opacity animate. */
   .product-card {
-    @apply bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1;
+    @apply relative bg-white rounded-2xl shadow-md; /* no overflow-hidden: it would clip the ::after shadow */
+    transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .product-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 18px 40px -12px rgba(110, 26, 60, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+
+  @media (hover: hover) {
+    .product-card:hover { transform: translateY(-6px); }
+    .product-card:hover::after { opacity: 1; }
+  }
+
+  @media (hover: none) {
+    .product-card:active { transform: scale(0.98); transition-duration: 0.1s; }
   }
 
   .category-badge {
     @apply text-xs font-semibold px-3 py-1 rounded-full bg-gold-50 text-burgundy-600 border border-gold-200;
+  }
+
+  /* Gold shimmer sweep on hover — used by the hero "Shop Now" button */
+  .btn-shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .btn-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 20%, rgba(225, 207, 174, 0.65) 50%, transparent 80%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    .btn-shimmer:hover::after {
+      transform: translateX(120%);
+      transition: transform 0.9s ease;
+    }
   }
 }
 
 @layer utilities {
   .text-shadow {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ---- Scroll reveal (see components/Reveal.jsx) ------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease var(--reveal-delay, 0ms),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Skeleton shimmer while images load ---------------------------------- */
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: #F5EFF1;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton.is-loaded::after {
+  display: none;
+}
+
+@keyframes skeleton-shimmer {
+  to { transform: translateX(100%); }
+}
+
+/* Image that fades in over its skeleton once loaded */
+.fade-img {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.fade-img.is-loaded {
+  opacity: 1;
+}
+
+/* ---- Navbar once scrolled ------------------------------------------------- */
+
+.site-nav {
+  transition: background-color 0.3s ease;
+}
+
+.site-nav::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 8px 24px -8px rgba(49, 12, 27, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.site-nav.is-scrolled::after {
+  opacity: 1;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .site-nav.is-scrolled {
+    background-color: rgba(110, 26, 60, 0.9);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* ---- Cart badge bounce + toast ------------------------------------------- */
+
+.badge-bounce {
+  animation: badge-bounce 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+@keyframes badge-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.45); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.toast {
+  animation: toast-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.toast.is-leaving {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---- Hero ------------------------------------------------------------------ */
+
+.hero {
+  min-height: 90vh;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+}
+
+.hero-slide {
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+
+.hero-slide.is-active {
+  opacity: 1;
+}
+
+/* Slow subtle zoom; restarts each time a slide becomes active and carries on
+   while it fades out (is-zooming stays on the outgoing slide) */
+.hero-slide.is-zooming img {
+  animation: hero-zoom 7s ease-out forwards;
+}
+
+@keyframes hero-zoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+.hero-rise {
+  opacity: 0;
+  animation: hero-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---- Reduced motion: everything visible, nothing moving ------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal,
+  .hero-rise {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+
+  .hero-slide { transition: none; }
+  .hero-slide.is-zooming img,
+  .badge-bounce,
+  .toast,
+  .skeleton::after {
+    animation: none;
+  }
+
+  .product-card,
+  .product-card::after,
+  .fade-img,
+  .btn-shimmer::after {
+    transition: none;
+  }
+
+  .product-card:hover,
+  .product-card:active {
+    transform: none;
   }
 }
 
@@ -60,10 +289,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #7A0F3D;
+  background: #6E1A3C;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4B06A;
+  background: #C9A96E;
 }

@@ -3,16 +3,15 @@ require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
 });
 
-pool.on('connect', () => {
-  console.log('Connected to PostgreSQL database');
-});
-
+// An idle client erroring (e.g. Postgres restarting) is recoverable — the
+// pool discards that client. Previously this exited the whole server.
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  console.error('[db] idle client error:', err.message);
 });
 
 module.exports = pool;

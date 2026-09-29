@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getProducts } from '../api';
 import ProductCard from '../components/ProductCard';
+import Reveal from '../components/Reveal';
 
 const ALL_CATEGORIES = [
   'All',
@@ -106,12 +107,12 @@ export default function Shop() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
-                <div className="h-40 sm:h-52 lg:h-64 bg-gray-200"></div>
+              <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md">
+                <div className="skeleton h-40 sm:h-52 lg:h-64"></div>
                 <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-8 bg-gray-200 rounded-full"></div>
+                  <div className="skeleton h-4 rounded w-3/4"></div>
+                  <div className="skeleton h-4 rounded w-1/2"></div>
+                  <div className="skeleton h-8 rounded-full"></div>
                 </div>
               </div>
             ))}
@@ -132,7 +133,11 @@ export default function Shop() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filtered.map(p => <ProductCard key={p.id} product={p} />)}
+            {filtered.map((p, i) => (
+              <Reveal key={p.id} delay={(i % 4) * 70} className="h-full">
+                <ProductCard product={p} />
+              </Reveal>
+            ))}
           </div>
         )}
       </div>

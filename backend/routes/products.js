@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { cleanLine, toPositiveInt } = require('../utils/validate');
+
+router.param('id', (req, res, next, value) => {
+  const id = toPositiveInt(value);
+  if (!id) return res.status(404).json({ error: 'Product not found' });
+  req.params.id = id;
+  next();
+});
 
 // product_images select shared with the single-product route below —
 // image_url/thumb/medium/large all fall back to the legacy Cloudinary
@@ -17,7 +25,7 @@ const PRODUCT_IMAGES_SELECT = `
 // GET all available products (with primary image)
 router.get('/', async (req, res) => {
   try {
-    const { category } = req.query;
+    const category = cleanLine(req.query.category, 100);
     let query = `
       SELECT p.*,
         COALESCE(pi.image_thumb, pi.image_url) AS primary_image

@@ -93,7 +93,7 @@ export default function AdminOrders() {
                         {order.payment_method === 'whatsapp' ? (
                           <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">WhatsApp</span>
                         ) : (
-                          <span className="text-xs bg-burgundy-50 text-burgundy-700 border border-burgundy-200 px-2 py-0.5 rounded-full">Korapay</span>
+                          <span className="text-xs bg-burgundy-50 text-burgundy-700 border border-burgundy-200 px-2 py-0.5 rounded-full">Paid online</span>
                         )}
                       </div>
                     </div>

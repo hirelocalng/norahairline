@@ -4,6 +4,11 @@ import { getFeaturedProducts } from '../api';
 import ProductCard from '../components/ProductCard';
 import FlashSaleBanner from '../components/FlashSaleBanner';
 import GallerySection from '../components/GallerySection';
+import Hero from '../components/Hero';
+import ClosingBanner from '../components/ClosingBanner';
+import Reveal from '../components/Reveal';
+import SmartImage from '../components/SmartImage';
+import { WHATSAPP_DISPLAY, whatsappLink } from '../config';
 
 const CATEGORIES = [
   { name: 'Wigs', image: '/categories/wigs.jpg', desc: 'Full wigs for every occasion' },
@@ -48,7 +53,7 @@ export default function Home() {
   const handleInstall = async () => {
     if (!installPrompt) return;
     installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
+    await installPrompt.userChoice;
     setInstallPrompt(null);
     setShowInstall(false);
   };
@@ -58,202 +63,51 @@ export default function Home() {
       <FlashSaleBanner />
 
       {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-
-        {/* Layer 1: deep plum base + diagonal gradient */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, #3D0620 0%, #7A0F3D 45%, #861445 70%, #3D0620 100%)',
-        }} />
-
-        {/* Layer 2: radial gold glow at centre */}
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse 75% 55% at 50% 50%, rgba(212,176,106,0.10) 0%, transparent 70%)',
-        }} />
-
-        {/* Layer 3: subtle diamond grid pattern */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 2 L54 28 L28 54 L2 28 Z' fill='none' stroke='%23D4B06A' stroke-width='0.4' opacity='0.35'/%3E%3C/svg%3E")`,
-          backgroundSize: '56px 56px',
-          opacity: 0.18,
-        }} />
-
-        {/* Layer 4: fine dot grid */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(212,176,106,0.55) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-          opacity: 0.12,
-        }} />
-
-        {/* Top + bottom gold edge lines */}
-        <div className="absolute top-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)', opacity: 0.5 }} />
-        <div className="absolute bottom-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #D4B06A 30%, #D4B06A 70%, transparent)', opacity: 0.5 }} />
-
-        {/* Large background diamond silhouette */}
-        <div className="absolute" style={{ width: '600px', height: '600px', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(212,176,106,0.07)', pointerEvents: 'none' }} />
-        <div className="absolute" style={{ width: '480px', height: '480px', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(212,176,106,0.06)', pointerEvents: 'none' }} />
-
-        {/* Corner ornament — top left */}
-        <div className="absolute top-5 left-5 opacity-70">
-          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="2" y1="2" x2="48" y2="2" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="2" y1="2" x2="2" y2="48" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="10" y1="10" x2="32" y2="10" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="10" y1="10" x2="10" y2="32" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="2" cy="2" r="2.5" fill="#D4B06A"/>
-            <circle cx="48" cy="2" r="1.2" fill="#D4B06A" opacity="0.5"/>
-            <circle cx="2" cy="48" r="1.2" fill="#D4B06A" opacity="0.5"/>
-          </svg>
-        </div>
-
-        {/* Corner ornament — top right */}
-        <div className="absolute top-5 right-5 opacity-70">
-          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="70" y1="2" x2="24" y2="2" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="70" y1="2" x2="70" y2="48" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="62" y1="10" x2="40" y2="10" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="62" y1="10" x2="62" y2="32" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="70" cy="2" r="2.5" fill="#D4B06A"/>
-            <circle cx="24" cy="2" r="1.2" fill="#D4B06A" opacity="0.5"/>
-            <circle cx="70" cy="48" r="1.2" fill="#D4B06A" opacity="0.5"/>
-          </svg>
-        </div>
-
-        {/* Corner ornament — bottom left */}
-        <div className="absolute bottom-5 left-5 opacity-70">
-          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="2" y1="70" x2="48" y2="70" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="2" y1="70" x2="2" y2="24" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="10" y1="62" x2="32" y2="62" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="10" y1="62" x2="10" y2="40" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="2" cy="70" r="2.5" fill="#D4B06A"/>
-          </svg>
-        </div>
-
-        {/* Corner ornament — bottom right */}
-        <div className="absolute bottom-5 right-5 opacity-70">
-          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-            <line x1="70" y1="70" x2="24" y2="70" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="70" y1="70" x2="70" y2="24" stroke="#D4B06A" strokeWidth="1.5"/>
-            <line x1="62" y1="62" x2="40" y2="62" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <line x1="62" y1="62" x2="62" y2="40" stroke="#D4B06A" strokeWidth="0.6" opacity="0.5"/>
-            <circle cx="70" cy="70" r="2.5" fill="#D4B06A"/>
-          </svg>
-        </div>
-
-        {/* Side flowing curves — desktop only */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden lg:block" style={{ opacity: 0.15 }}>
-          <svg width="48" height="320" viewBox="0 0 48 320" fill="none">
-            <path d="M44 0 Q4 80 44 160 Q4 240 44 320" stroke="#D4B06A" strokeWidth="1.2"/>
-            <path d="M36 0 Q2 80 36 160 Q2 240 36 320" stroke="#D4B06A" strokeWidth="0.5"/>
-          </svg>
-        </div>
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block" style={{ opacity: 0.15 }}>
-          <svg width="48" height="320" viewBox="0 0 48 320" fill="none">
-            <path d="M4 0 Q44 80 4 160 Q44 240 4 320" stroke="#D4B06A" strokeWidth="1.2"/>
-            <path d="M12 0 Q46 80 12 160 Q46 240 12 320" stroke="#D4B06A" strokeWidth="0.5"/>
-          </svg>
-        </div>
-
-        {/* ── CONTENT ── */}
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-
-          {/* Top ornament */}
-          <div className="flex items-center justify-center gap-3 mb-7">
-            <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to right, transparent, #D4B06A)' }} />
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="#D4B06A">
-              <path d="M9 0 L11.2 6.8 L18 9 L11.2 11.2 L9 18 L6.8 11.2 L0 9 L6.8 6.8 Z"/>
+      <Hero
+        installButton={showInstall && (
+          <button
+            type="button"
+            onClick={handleInstall}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 text-white font-semibold py-3.5 px-7 rounded-full transition-colors duration-300 border border-white/60 hover:border-white hover:bg-white/10"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            <div className="h-px w-12 sm:w-20" style={{ background: 'linear-gradient(to left, transparent, #D4B06A)' }} />
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold text-white mb-5 leading-tight" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}>
-            Nora Hair Line
-          </h1>
-
-          {/* Gold rule with centre diamond */}
-          <div className="flex items-center justify-center gap-0 mb-5">
-            <div className="h-px flex-1 max-w-[80px]" style={{ background: '#D4B06A', opacity: 0.6 }} />
-            <div className="mx-2 w-2.5 h-2.5 rotate-45" style={{ background: '#D4B06A' }} />
-            <div className="h-px w-8" style={{ background: '#D4B06A', opacity: 0.4 }} />
-            <div className="mx-2 w-1.5 h-1.5 rotate-45" style={{ background: '#D4B06A', opacity: 0.5 }} />
-            <div className="h-px w-8" style={{ background: '#D4B06A', opacity: 0.4 }} />
-            <div className="mx-2 w-2.5 h-2.5 rotate-45" style={{ background: '#D4B06A' }} />
-            <div className="h-px flex-1 max-w-[80px]" style={{ background: '#D4B06A', opacity: 0.6 }} />
-          </div>
-
-          <p className="text-lg md:text-3xl italic font-serif mb-7" style={{ color: '#D4B06A', textShadow: '0 1px 12px rgba(212,176,106,0.3)' }}>
-            "Luxury for less..."
-          </p>
-
-          <p className="text-burgundy-100 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed" style={{ opacity: 0.9 }}>
-            Discover premium quality wigs, frontals, bundles and more — crafted to make you look and feel your most confident.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-            <Link to="/shop" className="btn-primary text-center">
-              Shop Now
-            </Link>
-            <a
-              href="https://wa.me/2348038707795"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              Chat Us on WhatsApp
-            </a>
-            {showInstall && (
-              <button
-                onClick={handleInstall}
-                className="flex items-center justify-center gap-2 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md border-2 border-white/60 hover:border-white hover:bg-white/10"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Install Our App
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg className="w-6 h-6" style={{ color: '#D4B06A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </section>
+            Install Our App
+          </button>
+        )}
+      />
 
       {/* ===== CATEGORIES SECTION ===== */}
       <section className="py-16 bg-ivory">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="section-heading">Shop by Category</h2>
             <div className="gold-divider"></div>
             <p className="text-gray-500 mt-3">Find exactly what you're looking for</p>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.name}
-                to={`/shop?category=${encodeURIComponent(cat.name)}`}
-                className="group rounded-2xl border-2 border-gray-100 hover:border-gold-400 bg-white hover:bg-gold-50 transition-all duration-300 text-center shadow-sm hover:shadow-md overflow-hidden"
-              >
-                <div className="aspect-square overflow-hidden rounded-t-xl">
-                  <img
+            {CATEGORIES.map((cat, i) => (
+              <Reveal key={cat.name} delay={(i % 4) * 80}>
+                <Link
+                  to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                  className="group block h-full rounded-2xl border-2 border-gray-100 hover:border-gold-400 bg-white hover:bg-gold-50 transition-colors duration-300 text-center shadow-sm overflow-hidden active:scale-[0.98]"
+                >
+                  <SmartImage
                     src={cat.image}
                     alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    width="400"
+                    height="400"
+                    className="aspect-square rounded-t-xl"
+                    imgClassName="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                </div>
-                <div className="p-3">
-                  <h3 className="font-semibold text-burgundy-700 text-sm group-hover:text-burgundy-900 mb-0.5">{cat.name}</h3>
-                  <p className="text-gray-400 text-xs">{cat.desc}</p>
-                </div>
-              </Link>
+                  <div className="p-3">
+                    <h3 className="font-semibold text-burgundy-700 text-sm group-hover:text-burgundy-900 mb-0.5">{cat.name}</h3>
+                    <p className="text-gray-400 text-xs">{cat.desc}</p>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -262,21 +116,21 @@ export default function Home() {
       {/* ===== FEATURED PRODUCTS ===== */}
       <section className="py-16 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="section-heading">Featured Products</h2>
             <div className="gold-divider"></div>
             <p className="text-gray-500 mt-3">Our latest and most popular pieces</p>
-          </div>
+          </Reveal>
 
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
-                  <div className="h-40 sm:h-52 lg:h-64 bg-gray-200"></div>
+                <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md">
+                  <div className="skeleton h-40 sm:h-52 lg:h-64"></div>
                   <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    <div className="h-8 bg-gray-200 rounded-full"></div>
+                    <div className="skeleton h-4 rounded w-3/4"></div>
+                    <div className="skeleton h-4 rounded w-1/2"></div>
+                    <div className="skeleton h-8 rounded-full"></div>
                   </div>
                 </div>
               ))}
@@ -288,7 +142,11 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featured.map(p => <ProductCard key={p.id} product={p} />)}
+              {featured.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 4) * 80} className="h-full">
+                  <ProductCard product={p} />
+                </Reveal>
+              ))}
             </div>
           )}
 
@@ -306,7 +164,7 @@ export default function Home() {
       <section className="py-16 bg-burgundy-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+            <Reveal>
               <p className="text-gold-300 uppercase text-xs font-semibold tracking-widest mb-3">About Us</p>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-5">
                 Premium Hair, Accessible Prices
@@ -321,7 +179,7 @@ export default function Home() {
               <Link to="/about" className="btn-primary inline-block">
                 Read Our Story
               </Link>
-            </div>
+            </Reveal>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-6">
@@ -331,10 +189,10 @@ export default function Home() {
                 { number: '24/7', label: 'WhatsApp Support' },
                 { number: '🇳🇬', label: 'Lagos, Nigeria' },
               ].map((stat, i) => (
-                <div key={i} className="bg-burgundy-400/40 rounded-2xl p-6 text-center border border-burgundy-300/30">
+                <Reveal key={i} delay={i * 90} className="bg-burgundy-400/40 rounded-2xl p-6 text-center border border-burgundy-300/30">
                   <div className="text-3xl font-bold text-gold-300 mb-2">{stat.number}</div>
                   <div className="text-burgundy-100 text-sm">{stat.label}</div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -350,12 +208,12 @@ export default function Home() {
       {/* ===== CONTACT / LOCATION SECTION ===== */}
       <section className="py-16 bg-ivory">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="section-heading">Visit or Contact Us</h2>
             <div className="gold-divider"></div>
-          </div>
+          </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <Reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {/* Location */}
             <div className="bg-burgundy-50 rounded-2xl p-6 text-center">
               <div className="w-12 h-12 bg-burgundy-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -382,12 +240,12 @@ export default function Home() {
               <h3 className="font-semibold text-green-700 mb-2">WhatsApp</h3>
               <p className="text-gray-600 text-sm mb-4">Chat with us directly for orders and enquiries</p>
               <a
-                href="https://wa.me/2348038707795"
+                href={whatsappLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
               >
-                08038707795
+                {WHATSAPP_DISPLAY}
               </a>
             </div>
 
@@ -428,9 +286,12 @@ export default function Home() {
                 @norahairline1
               </a>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
+
+      {/* ===== CLOSING CALL TO ACTION (above the footer) ===== */}
+      <ClosingBanner />
     </div>
   );
 }
