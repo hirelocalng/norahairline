@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getGallery } from '../api';
+import { initQueensCarousel } from './queensCarousel';
+import './queensCarousel.css';
 
 function Lightbox({ item, items, onClose, onPrev, onNext }) {
   const hasPrev = items.indexOf(item) > 0;
@@ -115,16 +117,60 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
   );
 }
 
+// Cards cloned onto each end of the track so the loop can wrap seamlessly.
+// Must be at least the widest cards-per-view (4 on desktop).
+const MAX_CLONES = 5;
+
+function QueenCard({ item, index, clone, onFail }) {
+  const cloneProps = clone ? { 'data-qc-clone': '', 'aria-hidden': true } : {};
+  const tabIndex = clone ? -1 : undefined;
+
+  return (
+    <div className="qc-card" data-qc-card="" data-qc-index={index} {...cloneProps}>
+      {item.media_type === 'video' ? (
+        <>
+          <video
+            className="qc-media"
+            src={`${item.file_url}#t=0.1`}
+            poster={item.poster_url || undefined}
+            playsInline
+            preload={clone ? 'none' : 'metadata'}
+            onError={() => onFail(item.id)}
+          />
+          <button type="button" className="qc-play" data-qc-play="" tabIndex={tabIndex} aria-label="Play video">
+            <span className="qc-play-icon">
+              <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style={{ marginLeft: 2 }}>
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+          </button>
+        </>
+      ) : (
+        <button type="button" className="qc-open" data-qc-open="" tabIndex={tabIndex} aria-label="View photo">
+          <img
+            className="qc-media"
+            src={item.file_url}
+            alt=""
+            width="800"
+            height="800"
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            onError={() => onFail(item.id)}
+          />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function GallerySection() {
   const [items, setItems] = useState([]);
+  const [failedIds, setFailedIds] = useState(() => new Set());
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const dragState = useRef({
-    active: false,
-    startX: 0,
-    startScrollLeft: 0,
-    moved: false,
-  });
+  const rootRef = useRef(null);
+  const positionRef = useRef(0);
 
   useEffect(() => {
     getGallery()
@@ -133,52 +179,34 @@ export default function GallerySection() {
       .finally(() => setLoading(false));
   }, []);
 
-  const open = (index) => setLightboxIndex(index);
+  // Media that fails to load (e.g. a dead URL) is dropped rather than shown
+  // as a broken-image icon.
+  const markFailed = useCallback((id) => {
+    setFailedIds(prev => (prev.has(id) ? prev : new Set(prev).add(id)));
+  }, []);
+
+  const visible = items.filter(item => item.file_url && !failedIds.has(item.id));
+  const clones = visible.length > 1 ? Math.min(visible.length, MAX_CLONES) : 0;
+  const visibleKey = visible.map(item => item.id).join(',');
+
+  useEffect(() => {
+    if (loading || !rootRef.current || visible.length === 0) return;
+    const destroy = initQueensCarousel(rootRef.current, {
+      count: visible.length,
+      clones,
+      startIndex: Math.min(positionRef.current, visible.length - 1),
+      onOpen: setLightboxIndex,
+    });
+    return () => { positionRef.current = destroy(); };
+    // visibleKey captures every change to `visible` that matters here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, visibleKey]);
+
   const close = () => setLightboxIndex(null);
   const prev = () => setLightboxIndex(i => Math.max(0, i - 1));
-  const next = () => setLightboxIndex(i => Math.min(items.length - 1, i + 1));
+  const next = () => setLightboxIndex(i => Math.min(visible.length - 1, i + 1));
 
-  const handleDragStart = (event) => {
-    if (event.pointerType !== 'mouse' || event.button !== 0) return;
-
-    const container = event.currentTarget;
-    dragState.current = {
-      active: true,
-      startX: event.clientX,
-      startScrollLeft: container.scrollLeft,
-      moved: false,
-    };
-    container.setPointerCapture(event.pointerId);
-  };
-
-  const handleDragMove = (event) => {
-    if (!dragState.current.active) return;
-
-    const container = event.currentTarget;
-    const distance = event.clientX - dragState.current.startX;
-    if (Math.abs(distance) > 5) dragState.current.moved = true;
-    container.scrollLeft = dragState.current.startScrollLeft - distance;
-  };
-
-  const handleDragEnd = (event) => {
-    if (!dragState.current.active) return;
-
-    dragState.current.active = false;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
-
-  const handleItemClick = (index, event) => {
-    if (dragState.current.moved) {
-      event.preventDefault();
-      dragState.current.moved = false;
-      return;
-    }
-    open(index);
-  };
-
-  if (!loading && items.length === 0) return null;
+  if (!loading && visible.length === 0) return null;
 
   return (
     <>
@@ -190,65 +218,68 @@ export default function GallerySection() {
           </div>
 
           {loading ? (
-            <div className="gallery-carousel">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="gallery-carousel-item aspect-square rounded-xl bg-burgundy-50 animate-pulse" />
-              ))}
+            <div className="queens-carousel">
+              <div className="qc-track">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="qc-card qc-skeleton" />
+                ))}
+              </div>
             </div>
           ) : (
             <div
-              className="gallery-carousel"
-              onPointerDown={handleDragStart}
-              onPointerMove={handleDragMove}
-              onPointerUp={handleDragEnd}
-              onPointerCancel={handleDragEnd}
+              ref={rootRef}
+              className="queens-carousel"
+              role="region"
+              aria-roledescription="carousel"
+              aria-label="Nora Hair Queens gallery"
             >
-              {items.map((item, index) =>
-                item.media_type === 'video' ? (
-                  <button
-                    key={item.id}
-                    onClick={(event) => handleItemClick(index, event)}
-                    className="gallery-carousel-item relative aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer"
-                  >
-                    <video
-                      src={`${item.file_url}#t=0.5`}
-                      className="w-full h-full object-cover"
-                      muted
-                      playsInline
-                      preload="metadata"
-                    />
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/35 transition-colors flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                        <svg className="w-6 h-6 text-burgundy-700 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </div>
+              <div className="qc-track" data-qc-track="">
+                {visible.slice(visible.length - clones).map((item, i) => (
+                  <QueenCard key={`head-${item.id}`} item={item} index={visible.length - clones + i} clone onFail={markFailed} />
+                ))}
+                {visible.map((item, i) => (
+                  <QueenCard key={item.id} item={item} index={i} onFail={markFailed} />
+                ))}
+                {visible.slice(0, clones).map((item, i) => (
+                  <QueenCard key={`tail-${item.id}`} item={item} index={i} clone onFail={markFailed} />
+                ))}
+              </div>
+
+              {visible.length > 1 && (
+                <>
+                  <button type="button" className="qc-arrow qc-prev" data-qc-prev="" aria-label="Previous">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                    </svg>
                   </button>
-                ) : (
-                  <button
-                    key={item.id}
-                    onClick={(event) => handleItemClick(index, event)}
-                    className="gallery-carousel-item aspect-square rounded-xl overflow-hidden bg-burgundy-50 group cursor-pointer"
-                  >
-                    <img
-                      src={item.file_url}
-                      alt=""
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
+                  <button type="button" className="qc-arrow qc-next" data-qc-next="" aria-label="Next">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
-                )
+                  <div className="qc-dots">
+                    {visible.map((item, i) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className="qc-dot"
+                        data-qc-dot=""
+                        data-qc-index={i}
+                        aria-label={`Go to item ${i + 1} of ${visible.length}`}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}
         </div>
       </section>
 
-      {lightboxIndex !== null && (
+      {lightboxIndex !== null && visible[lightboxIndex] && (
         <Lightbox
-          item={items[lightboxIndex]}
-          items={items}
+          item={visible[lightboxIndex]}
+          items={visible}
           onClose={close}
           onPrev={prev}
           onNext={next}

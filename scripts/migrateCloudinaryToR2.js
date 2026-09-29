@@ -4,8 +4,10 @@
 // produce R2 webp variants, and saves the new URLs. The original Cloudinary
 // URL column is left untouched — nothing is deleted from Cloudinary.
 //
-// Videos are NOT migrated: uploadVideo() does no transcoding, so re-hosting
-// an existing video on R2 gains nothing worth the bandwidth.
+// Gallery videos are re-hosted on R2 as-is and their file_url is replaced.
+// Public Cloudinary delivery has since started returning 401 for every
+// asset, so when a plain download fails we retry through a signed Admin API
+// download URL (needs CLOUDINARY_* credentials in backend/.env).
 //
 // This script is NOT run automatically. Run it manually after deploying the
 // R2 changes:
@@ -15,12 +17,41 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../backend/.env') });
 
 const pool = require('../backend/db');
-const { uploadImage } = require('../backend/utils/media');
+const { uploadImage, uploadVideo } = require('../backend/utils/media');
+const { cloudinary } = require('../backend/middleware/upload');
 
-async function downloadBuffer(url) {
+async function fetchBuffer(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Download failed (HTTP ${res.status})`);
-  return Buffer.from(await res.arrayBuffer());
+  return {
+    buffer: Buffer.from(await res.arrayBuffer()),
+    contentType: res.headers.get('content-type'),
+  };
+}
+
+// Recovers the public_id/format/resource type from a delivery URL such as
+// https://res.cloudinary.com/<cloud>/video/upload/v123/folder/name.mp4
+function parseCloudinaryUrl(url) {
+  const m = /res\.cloudinary\.com\/[^/]+\/(image|video|raw)\/upload\/(?:v\d+\/)?(.+)\.(\w+)$/.exec(url);
+  return m ? { resourceType: m[1], publicId: m[2], format: m[3] } : null;
+}
+
+async function downloadBuffer(url) {
+  try {
+    return (await fetchBuffer(url)).buffer;
+  } catch (err) {
+    const parsed = parseCloudinaryUrl(url);
+    if (!parsed) throw err;
+    const signed = cloudinary.utils.private_download_url(parsed.publicId, parsed.format, {
+      resource_type: parsed.resourceType,
+      type: 'upload',
+    });
+    try {
+      return (await fetchBuffer(signed)).buffer;
+    } catch (signedErr) {
+      throw new Error(`${err.message}; signed download also failed: ${signedErr.message}`);
+    }
+  }
 }
 
 async function migrateProductImages() {
@@ -65,6 +96,28 @@ async function migrateGalleryImages() {
   }
 }
 
+const VIDEO_MIMETYPES = { mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm' };
+
+async function migrateGalleryVideos() {
+  const { rows } = await pool.query(
+    `SELECT id, file_url FROM gallery_items WHERE media_type = 'video' AND file_url LIKE '%res.cloudinary.com%'`
+  );
+  console.log(`[gallery] ${rows.length} video(s) to migrate`);
+
+  for (const row of rows) {
+    try {
+      const buffer = await downloadBuffer(row.file_url);
+      const ext = (row.file_url.split('.').pop() || 'mp4').toLowerCase();
+      const url = await uploadVideo(buffer, 'norahairline/gallery', VIDEO_MIMETYPES[ext] || 'video/mp4', `video.${ext}`);
+      // cloudinary_public_id is kept so deleting the item still cleans up Cloudinary
+      await pool.query(`UPDATE gallery_items SET file_url = $1 WHERE id = $2`, [url, row.id]);
+      console.log(`[gallery] migrated video ${row.id}`);
+    } catch (err) {
+      console.error(`[gallery] FAILED video ${row.id}: ${err.message}`);
+    }
+  }
+}
+
 async function migrateFlashSaleBanner() {
   const { rows } = await pool.query(
     `SELECT id, banner_image_url FROM flash_sale_settings
@@ -90,6 +143,7 @@ async function migrateFlashSaleBanner() {
 async function run() {
   await migrateProductImages();
   await migrateGalleryImages();
+  await migrateGalleryVideos();
   await migrateFlashSaleBanner();
   await pool.end();
   console.log('Migration complete');

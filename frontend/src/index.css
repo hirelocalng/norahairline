@@ -44,41 +44,6 @@
   }
 }
 
-.gallery-carousel {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  cursor: grab;
-}
-
-.gallery-carousel::-webkit-scrollbar {
-  display: none;
-}
-
-.gallery-carousel:active {
-  cursor: grabbing;
-}
-
-.gallery-carousel-item {
-  flex: 0 0 80%;
-  scroll-snap-align: center;
-}
-
-@media (min-width: 640px) {
-  .gallery-carousel-item {
-    flex-basis: 48%;
-  }
-}
-
-@media (min-width: 1024px) {
-  .gallery-carousel-item {
-    flex-basis: 31%;
-  }
-}
-
 @layer utilities {
   .text-shadow {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);

@@ -1,0 +1,195 @@
+/* "Nora Hair Queens" homepage carousel. Everything is scoped under
+   .queens-carousel so nothing leaks into the rest of the site. */
+
+.queens-carousel {
+  --qc-gap: 1rem;
+  --qc-per-view: 1.3;
+  --qc-burgundy: #7A0F3D;
+  --qc-burgundy-dark: #5A0A2C;
+  --qc-gold: #D4B06A;
+  --qc-tile: #F9EEF3;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .queens-carousel { --qc-per-view: 2.5; }
+}
+
+@media (min-width: 1024px) {
+  .queens-carousel { --qc-per-view: 4; }
+}
+
+.queens-carousel .qc-track {
+  display: flex;
+  gap: var(--qc-gap);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: auto; /* smoothness is chosen per call in JS */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
+}
+
+.queens-carousel .qc-track::-webkit-scrollbar {
+  display: none;
+}
+
+.queens-carousel .qc-card {
+  position: relative;
+  flex: 0 0 calc((100% - (var(--qc-per-view) - 1) * var(--qc-gap)) / var(--qc-per-view));
+  aspect-ratio: 1 / 1;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--qc-tile);
+}
+
+.queens-carousel .qc-skeleton {
+  animation: qc-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes qc-pulse {
+  50% { opacity: 0.5; }
+}
+
+.queens-carousel .qc-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.queens-carousel .qc-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.queens-carousel img.qc-media {
+  transition: transform 0.5s ease;
+}
+
+@media (hover: hover) {
+  .queens-carousel .qc-open:hover img.qc-media { transform: scale(1.08); }
+}
+
+/* Branded backdrop so a video without a decoded frame yet isn't a grey box */
+.queens-carousel video.qc-media {
+  background: linear-gradient(135deg, var(--qc-burgundy-dark), var(--qc-burgundy));
+}
+
+.queens-carousel .qc-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.queens-carousel .qc-play:hover { background: rgba(0, 0, 0, 0.35); }
+
+.queens-carousel .qc-play-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--qc-burgundy-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.queens-carousel .qc-card.is-playing .qc-play { display: none; }
+
+/* Arrows: desktop with a real pointer only */
+.queens-carousel .qc-arrow {
+  display: none;
+}
+
+@media (min-width: 1024px) and (hover: hover) {
+  .queens-carousel .qc-arrow {
+    position: absolute;
+    top: calc(50% - 1.25rem); /* centre on the track, ignoring the dots row */
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--qc-burgundy);
+    color: var(--qc-gold);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .queens-carousel .qc-arrow:hover { background: var(--qc-burgundy-dark); }
+  .queens-carousel .qc-prev { left: -1.375rem; }
+  .queens-carousel .qc-next { right: -1.375rem; }
+}
+
+.queens-carousel .qc-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+}
+
+/* 24px tap target around a small visible dot */
+.queens-carousel .qc-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.queens-carousel .qc-dot::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--qc-burgundy);
+  opacity: 0.25;
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.queens-carousel .qc-dot.is-active::before {
+  background: var(--qc-gold);
+  opacity: 1;
+  transform: scale(1.3);
+}
+
+.queens-carousel :focus-visible {
+  outline: 2px solid var(--qc-gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queens-carousel *,
+  .queens-carousel *::before {
+    transition: none !important;
+    animation: none !important;
+  }
+}

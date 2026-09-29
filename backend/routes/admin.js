@@ -619,14 +619,13 @@ router.delete('/gallery/:id', authenticateAdmin, async (req, res) => {
     const item = result.rows[0];
     await pool.query('DELETE FROM gallery_items WHERE id = $1', [id]);
 
+    // Migrated items have both a Cloudinary original and R2 copies, so clean
+    // up both. deleteMedia ignores URLs that aren't on R2.
     if (item.cloudinary_public_id) {
       const resourceType = item.media_type === 'video' ? 'video' : 'image';
       cloudinary.uploader.destroy(item.cloudinary_public_id, { resource_type: resourceType }).catch(console.error);
-    } else if (item.media_type === 'video') {
-      if (item.file_url) deleteMedia(item.file_url).catch(console.error);
-    } else {
-      deleteMedia([item.file_thumb, item.file_medium, item.file_large]).catch(console.error);
     }
+    deleteMedia([item.file_url, item.file_thumb, item.file_medium, item.file_large]).catch(console.error);
 
     res.json({ message: 'Gallery item deleted successfully' });
   } catch (err) {
