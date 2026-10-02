@@ -63,7 +63,7 @@ function validate(c) {
 
 export function buildWhatsAppMessage({ orderId, customer, items, subtotal, deliveryFee, total }) {
   const lines = items
-    .map(i => `• ${cleanLine(i.name, 120)} × ${i.quantity} — ${naira(i.price * i.quantity)}`)
+    .map(i => `• ${cleanLine(i.name, 120)} × ${i.quantity}: ${naira(i.price * i.quantity)}`)
     .join('\n');
   return [
     `Hi Nora Hair Line! I'd like to place an order.`,
@@ -102,7 +102,7 @@ export default function Checkout() {
           {placedOrder.id ? `Order #${placedOrder.id} sent!` : 'Order sent!'}
         </h2>
         <p className="text-gray-500 mb-6 max-w-sm">
-          Your order has opened in WhatsApp. Tap <strong>send</strong> there so we receive it — we'll confirm availability and delivery with you.
+          Your order has opened in WhatsApp. Tap <strong>send</strong> there so we receive it, and we'll confirm availability and delivery with you.
         </p>
         <a
           href={placedOrder.link}
@@ -223,7 +223,7 @@ export default function Checkout() {
 
                 <div>
                   <label htmlFor="co-email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Email Address <span className="text-gray-400 font-normal">(optional — for order updates)</span>
+                    Email Address <span className="text-gray-400 font-normal">(optional, for order updates)</span>
                   </label>
                   <input
                     id="co-email" name="email" value={form.email} onChange={handleChange}

@@ -33,7 +33,7 @@ export default function ClosingBanner() {
           Luxury for less
         </h2>
         <p className="text-white/85 text-base sm:text-lg max-w-lg mx-auto mb-9">
-          Wigs, frontals, closures and bundles you'll love — shop the collection.
+          Wigs, frontals, closures and bundles you'll love. Shop the collection.
         </p>
         <Link
           to="/shop"

@@ -1,4 +1,5 @@
-const CACHE = 'norahairline-v2';
+// Bump on every visual release so returning visitors drop cached static files
+const CACHE = 'norahairline-v3';
 
 // Only cache true static assets — never HTML routes
 const STATIC_ASSETS = ['/favicon.svg', '/logo.png', '/manifest.json'];

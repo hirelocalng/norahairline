@@ -56,7 +56,7 @@ export default function AdminGallery() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Gallery</h1>
             <p className="text-gray-500 text-sm mt-1">
-              Nora Hair Queens — {items.length} item{items.length !== 1 ? 's' : ''}
+              Nora Hair Queens: {items.length} item{items.length !== 1 ? 's' : ''}
             </p>
           </div>
           <div>

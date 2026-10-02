@@ -36,6 +36,22 @@ export default {
         cream: '#F4E8D7',
         ivory: '#FAF7F2',
       },
+      // Every text-* utility reads from the type scale in src/index.css
+      // (:root --fs-*), so site-wide text size is tuned in one place.
+      fontSize: {
+        xs: ['var(--fs-xs)', { lineHeight: '1.45' }],
+        sm: ['var(--fs-sm)', { lineHeight: '1.5' }],
+        base: ['var(--fs-base)', { lineHeight: '1.6' }],
+        lg: ['var(--fs-lg)', { lineHeight: '1.55' }],
+        xl: ['var(--fs-xl)', { lineHeight: '1.45' }],
+        '2xl': ['var(--fs-2xl)', { lineHeight: '1.3' }],
+        '3xl': ['var(--fs-3xl)', { lineHeight: '1.2' }],
+        '4xl': ['var(--fs-4xl)', { lineHeight: '1.15' }],
+        '5xl': ['var(--fs-5xl)', { lineHeight: '1.1' }],
+        '6xl': ['var(--fs-6xl)', { lineHeight: '1.05' }],
+        '7xl': ['var(--fs-7xl)', { lineHeight: '1.05' }],
+        '8xl': ['var(--fs-8xl)', { lineHeight: '1' }],
+      },
       fontFamily: {
         serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
       },

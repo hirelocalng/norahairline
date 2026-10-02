@@ -7,7 +7,7 @@ import SmartImage from '../components/SmartImage';
 import { whatsappLink } from '../config';
 
 function buildWhatsAppLink(name, price) {
-  const text = `Hi Nora Hair Line! I want to order: ${name} - ₦${Number(price).toLocaleString()}. Please confirm availability and delivery details.`;
+  const text = `Hi Nora Hair Line! I want to order: ${name}, ₦${Number(price).toLocaleString()}. Please confirm availability and delivery details.`;
   return whatsappLink(text);
 }
 
@@ -78,14 +78,14 @@ export default function ProductDetail() {
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100 py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-burgundy-600">Home</Link>
-            <span>/</span>
-            <Link to="/shop" className="hover:text-burgundy-600">Shop</Link>
-            <span>/</span>
-            <Link to={`/shop?category=${encodeURIComponent(product.category)}`} className="hover:text-burgundy-600">{product.category}</Link>
-            <span>/</span>
-            <span className="text-gray-800 font-medium truncate max-w-xs">{product.name}</span>
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-gray-500 whitespace-nowrap min-w-0">
+            <Link to="/" className="shrink-0 hover:text-burgundy-600">Home</Link>
+            <span className="shrink-0" aria-hidden="true">/</span>
+            <Link to="/shop" className="shrink-0 hover:text-burgundy-600">Shop</Link>
+            <span className="shrink-0" aria-hidden="true">/</span>
+            <Link to={`/shop?category=${encodeURIComponent(product.category)}`} className="truncate min-w-0 max-w-[40%] hover:text-burgundy-600">{product.category}</Link>
+            <span className="shrink-0" aria-hidden="true">/</span>
+            <span className="text-gray-800 font-medium truncate min-w-0">{product.name}</span>
           </nav>
         </div>
       </div>
@@ -95,16 +95,16 @@ export default function ProductDetail() {
           {/* Image Gallery */}
           <div>
             {/* Main Image */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-md mb-4 aspect-square">
+            <div className="bg-white rounded-2xl overflow-hidden shadow-md mb-4 aspect-[4/5]">
               {activeImg ? (
                 <SmartImage
                   key={activeImg.id}
                   src={activeImg.image_large || activeImg.image_url}
                   srcSet={activeImg.image_large ? `${activeImg.image_medium} 800w, ${activeImg.image_large} 1284w` : undefined}
-                  sizes="(min-width: 1024px) 600px, 100vw"
+                  sizes="(min-width: 1280px) 600px, (min-width: 1024px) 45vw, 100vw"
                   alt={product.name}
                   width="800"
-                  height="800"
+                  height="1000"
                   eager
                   className="w-full h-full"
                   imgClassName="w-full h-full object-cover"
@@ -121,16 +121,17 @@ export default function ProductDetail() {
 
             {/* Thumbnails */}
             {images.length > 1 && (
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2.5 flex-wrap">
                 {images.map((img, idx) => (
                   <button
                     key={img.id}
                     onClick={() => setActiveImage(idx)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    aria-label={`Show photo ${idx + 1}`}
+                    className={`w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border-2 transition-all ${
                       idx === activeImage ? 'border-gold-500 shadow-md' : 'border-gray-200 hover:border-burgundy-400'
                     }`}
                   >
-                    <img src={img.image_thumb || img.image_url} alt={`View ${idx + 1}`} width="64" height="64" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img src={img.image_thumb || img.image_url} alt={`${product.name}, photo ${idx + 1}`} width="96" height="96" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -182,7 +183,7 @@ export default function ProductDetail() {
             <div className="flex items-center gap-2 mb-6">
               <div className={`w-2.5 h-2.5 rounded-full ${product.available ? 'bg-green-500' : 'bg-red-400'}`}></div>
               <span className={`text-sm font-medium ${product.available ? 'text-green-600' : 'text-red-500'}`}>
-                {product.available ? 'In Stock — Available' : 'Currently Unavailable'}
+                {product.available ? 'In Stock: Available' : 'Currently Unavailable'}
               </span>
             </div>
 
@@ -240,7 +241,7 @@ export default function ProductDetail() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14">
           <div className="border-t border-gray-100 pt-10">
             <h2 className="text-xl font-serif font-bold text-gray-800 mb-6">You May Also Like</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 max-w-2xl">
               {relatedProducts.map(p => (
                 <ProductCard key={p.id} product={p} />
               ))}

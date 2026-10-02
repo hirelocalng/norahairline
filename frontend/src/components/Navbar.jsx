@@ -22,10 +22,10 @@ export default function Navbar() {
   return (
     <nav className={`site-nav bg-burgundy-500 sticky top-0 z-50 ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="flex items-center justify-between h-16 sm:h-[4.5rem]">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
-            <img src="/logo.png" alt="Nora Hair Line" width="835" height="754" fetchpriority="high" className="h-11 sm:h-14 w-auto" style={{ mixBlendMode: 'lighten' }} />
+            <img src="/logo.png" alt="Nora Hair Line" width="835" height="754" fetchpriority="high" className="h-12 sm:h-16 w-auto" style={{ mixBlendMode: 'lighten' }} />
           </Link>
 
           {/* Nav links + Cart — always visible */}
@@ -53,7 +53,7 @@ export default function Navbar() {
               {count > 0 && (
                 <span
                   key={lastAdded?.key}
-                  className={`${lastAdded ? 'badge-bounce' : ''} absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-gold-500 text-burgundy-900 text-[10px] font-bold rounded-full flex items-center justify-center px-1`}
+                  className={`${lastAdded ? 'badge-bounce' : ''} absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-gold-500 text-burgundy-900 text-[0.6875rem] font-bold rounded-full flex items-center justify-center px-1`}
                 >
                   {count > 99 ? '99+' : count}
                 </span>

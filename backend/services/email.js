@@ -116,7 +116,7 @@ async function sendOrderConfirmation(order) {
   await send({
     from: FROM,
     to: order.customer_email,
-    subject: `Nora Hair Line – Order #${order.id} Confirmed`,
+    subject: `Nora Hair Line: Order #${order.id} Confirmed`,
     html: baseTemplate('Order Received!', body),
   });
 }
@@ -166,7 +166,7 @@ async function sendStatusUpdate(order, status) {
   await send({
     from: FROM,
     to: order.customer_email,
-    subject: `Nora Hair Line – Order #${order.id} Update`,
+    subject: `Nora Hair Line: Order #${order.id} Update`,
     html: baseTemplate(titles[status], body),
   });
 }

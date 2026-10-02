@@ -1,22 +1,27 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import SmartImage from './SmartImage';
+import { productImageSources } from '../images';
 
 export default function ProductCard({ product }) {
   const { id, name, price, original_price, category, primary_image } = product;
   const { addItem } = useCart();
+  const image = productImageSources(primary_image);
 
   return (
     <div className="product-card group h-full flex flex-col">
       {/* Image */}
       <Link to={`/product/${id}`} className="block">
-        <div className="relative overflow-hidden rounded-t-2xl h-40 sm:h-52 lg:h-64 bg-gray-100">
+        {/* 4:5 portrait box (was a fixed 160/208/256px height) */}
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[4/5] bg-gray-100">
           {primary_image ? (
             <SmartImage
-              src={primary_image}
+              src={image.src}
+              srcSet={image.srcSet}
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 50vw"
               alt={name}
-              width="300"
-              height="400"
+              width="400"
+              height="500"
               className="w-full h-full"
               imgClassName="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -37,9 +42,9 @@ export default function ProductCard({ product }) {
       </Link>
 
       {/* Content */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1">
+      <div className="p-2.5 sm:p-4 flex flex-col flex-1">
         <Link to={`/product/${id}`}>
-          <h3 className="font-semibold text-gray-800 text-xs sm:text-base mb-1 hover:text-burgundy-600 transition-colors line-clamp-2">{name}</h3>
+          <h3 className="font-semibold text-gray-800 text-sm sm:text-base leading-snug mb-1 hover:text-burgundy-600 transition-colors line-clamp-2">{name}</h3>
         </Link>
         <div className="mb-3">
           <p className="text-gold-700 font-bold text-sm sm:text-lg leading-tight">

@@ -58,7 +58,7 @@ function sendNewProductNotification(productName) {
   console.log('[OneSignal] Triggering new product notification for:', productName);
   return sendPush(
     'New Arrival! 🛍️',
-    `${productName} is now available — Shop now at Nora Hair Line!`
+    `${productName} is now available. Shop now at Nora Hair Line!`
   );
 }
 
@@ -67,7 +67,7 @@ function sendFlashSaleNotification() {
   console.log('[OneSignal] Triggering flash sale notification');
   return sendPush(
     '⚡ Flash Sale is LIVE!',
-    "Don't miss out — amazing deals are waiting for you. Shop now!"
+    "Don't miss out: amazing deals are waiting for you. Shop now!"
   );
 }
 

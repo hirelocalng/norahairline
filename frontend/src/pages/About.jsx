@@ -28,16 +28,16 @@ export default function About() {
 
           <div className="prose max-w-none text-gray-700 leading-relaxed space-y-5 text-base">
             <p>
-              Welcome to <strong className="text-burgundy-700">Nora Hair Line</strong> — your destination for premium quality hair products at prices that celebrate every woman, not just a few. We were founded with one simple belief: <em className="text-gold-600">luxury should be accessible.</em>
+              Welcome to <strong className="text-burgundy-700">Nora Hair Line</strong>, your destination for premium quality hair products at prices that celebrate every woman, not just a few. We were founded with one simple belief: <em className="text-gold-600">luxury should be accessible.</em>
             </p>
             <p>
-              Based in the heart of Lagos at the Trade Fair Complex, we started as a small stall with a big dream — to give Nigerian women access to the same quality of hair extensions, wigs, and accessories that were once only available at exorbitant prices. Today, we proudly serve customers across Lagos and ship nationwide.
+              Based in the heart of Lagos at the Trade Fair Complex, we started as a small stall with a big dream: to give Nigerian women access to the same quality of hair extensions, wigs, and accessories that were once only available at exorbitant prices. Today, we proudly serve customers across Lagos and ship nationwide.
             </p>
             <p>
-              Our collection spans 8 carefully curated categories — from silky <strong>Vietnam Bone Straight</strong> bundles to luscious <strong>Curly Hair</strong>, elegant <strong>360 Illusion Frontals</strong>, and versatile <strong>Wigs</strong> for every occasion. Each product is hand-selected to meet our strict quality standards.
+              Our collection spans 8 carefully curated categories, from silky <strong>Vietnam Bone Straight</strong> bundles to luscious <strong>Curly Hair</strong>, elegant <strong>360 Illusion Frontals</strong>, and versatile <strong>Wigs</strong> for every occasion. Each product is hand-selected to meet our strict quality standards.
             </p>
             <p>
-              At Nora Hair Line, we believe that your crown deserves the best. Whether you're preparing for a wedding, a night out, or simply want to refresh your look, we have everything you need to feel confident and beautiful — without the luxury price tag.
+              At Nora Hair Line, we believe that your crown deserves the best. Whether you're preparing for a wedding, a night out, or simply want to refresh your look, we have everything you need to feel confident and beautiful, without the luxury price tag.
             </p>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function About() {
               {
                 icon: '💰',
                 title: 'Affordable Prices',
-                desc: 'Our motto "Luxury for less" isn\'t just a tagline — it\'s our promise. We work hard to bring you quality at competitive prices.'
+                desc: 'Our motto "Luxury for less" isn\'t just a tagline. It\'s our promise. We work hard to bring you quality at competitive prices.'
               },
               {
                 icon: '🚚',

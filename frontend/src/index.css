@@ -3,6 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+  /* ---- Type scale: single source of truth for text size -----------------
+     Tailwind's text-xs … text-8xl map to these (tailwind.config.js), each
+     roughly 8–12% larger than Tailwind's defaults (noted on the right).
+     Small sizes are fixed for legibility; headings grow with the viewport
+     via clamp(). */
+  :root {
+    --fs-xs: 0.8125rem;                                  /* 13px  (was 12px) */
+    --fs-sm: 0.9375rem;                                  /* 15px  (was 14px) */
+    --fs-base: 1.0625rem;                                /* 17px  (was 16px) */
+    --fs-lg: 1.1875rem;                                  /* 19px  (was 18px) */
+    --fs-xl: 1.375rem;                                   /* 22px  (was 20px) */
+    --fs-2xl: clamp(1.5rem, 1.4rem + 0.5vw, 1.65rem);    /* 24–26px (was 24px) */
+    --fs-3xl: clamp(1.75rem, 1.55rem + 0.9vw, 2.0625rem); /* 28–33px (was 30px) */
+    --fs-4xl: clamp(2rem, 1.7rem + 1.3vw, 2.5rem);       /* 32–40px (was 36px) */
+    --fs-5xl: clamp(2.5rem, 2rem + 2vw, 3.3rem);         /* 40–53px (was 48px) */
+    --fs-6xl: clamp(2.9rem, 2.2rem + 3vw, 4.1rem);       /* 46–66px (was 60px) */
+    --fs-7xl: clamp(3.2rem, 2.3rem + 4vw, 4.95rem);      /* 51–79px (was 72px) */
+    --fs-8xl: clamp(4rem, 3rem + 5vw, 6.6rem);           /* 64–106px (was 96px) */
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -243,6 +263,17 @@
 @keyframes hero-rise {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: none; }
+}
+
+/* ---- Form fields: at least 16px on phones ------------------------------------
+   iOS Safari zooms into any field under 16px. Element + attribute selectors
+   out-rank Tailwind's single-class text-sm/text-xs, so no !important needed. */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
 }
 
 /* ---- Reduced motion: everything visible, nothing moving ------------------ */

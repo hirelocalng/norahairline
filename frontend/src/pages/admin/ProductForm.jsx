@@ -195,7 +195,7 @@ export default function ProductForm() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Original Price (₦)
-                    <span className="ml-1.5 text-gray-400 font-normal text-xs">— set only if on sale</span>
+                    <span className="ml-1.5 text-gray-400 font-normal text-xs">(set only if on sale)</span>
                   </label>
                   <input
                     type="number"
@@ -238,7 +238,7 @@ export default function ProductForm() {
                   onChange={handleChange}
                   rows={4}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-burgundy-500 focus:ring-2 focus:ring-burgundy-100 resize-none"
-                  placeholder="Describe the product — texture, length, care instructions..."
+                  placeholder="Describe the product: texture, length, care instructions..."
                 />
               </div>
 
@@ -326,7 +326,7 @@ export default function ProductForm() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <p className="text-sm text-gray-600 font-medium">Click to upload photos</p>
-              <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP — up to 10MB each, max 10 files</p>
+              <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP. Up to 10MB each, max 10 files</p>
               <p className="text-xs text-burgundy-500 mt-1">★ First photo becomes the primary image</p>
               <input
                 type="file"
@@ -343,7 +343,7 @@ export default function ProductForm() {
             <h2 className="font-semibold text-gray-700 mb-1 pb-3 border-b border-gray-100">
               Product Video <span className="text-gray-400 font-normal text-xs ml-1">optional</span>
             </h2>
-            <p className="text-xs text-gray-400 mb-4">Any video format (MP4, MOV, AVI, WebM…) — max 100MB</p>
+            <p className="text-xs text-gray-400 mb-4">Any video format (MP4, MOV, AVI, WebM…), max 100MB</p>
 
             {/* Existing video (edit mode) */}
             {isEdit && existingVideoUrl && !deleteVideo && !newVideoFile && (
@@ -412,7 +412,7 @@ export default function ProductForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                 </svg>
                 <p className="text-sm text-gray-600 font-medium">Click to upload video</p>
-                <p className="text-xs text-gray-400 mt-1">Any video format — max 100MB</p>
+                <p className="text-xs text-gray-400 mt-1">Any video format, max 100MB</p>
                 <input
                   type="file"
                   accept="video/*"

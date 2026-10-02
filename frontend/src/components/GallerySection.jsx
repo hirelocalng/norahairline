@@ -95,7 +95,8 @@ function Lightbox({ item, items, onClose, onPrev, onNext }) {
           <img
             key={item.id}
             src={item.file_url}
-            alt=""
+            alt="Nora Hair Queens customer photo"
+            decoding="async"
             className="w-full h-full object-contain sm:max-h-[90vh] sm:rounded-2xl select-none"
             draggable={false}
           />
@@ -149,7 +150,7 @@ function QueenCard({ item, index, clone }) {
           <img
             className="qc-media"
             src={item.file_url}
-            alt=""
+            alt="Nora Hair Queens customer photo"
             width="800"
             height="800"
             loading="lazy"

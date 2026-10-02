@@ -101,10 +101,17 @@ export default function Hero({ installButton }) {
         ))}
       </div>
 
-      {/* Burgundy overlay: keeps the headline and buttons readable on any photo */}
+      {/* Burgundy overlay: keeps the headline and buttons readable on any photo.
+          1) brand gradient top-to-bottom, 2) a dark scrim centred behind the
+          text block so bright/red areas of a photo can't tint the copy,
+          3) edge vignette on wider screens. */}
       <div
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, rgba(49,12,27,0.72) 0%, rgba(110,26,60,0.58) 42%, rgba(49,12,27,0.9) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, rgba(49,12,27,0.78) 0%, rgba(83,20,45,0.7) 45%, rgba(49,12,27,0.92) 100%)' }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 55%, rgba(30,6,16,0.6) 0%, rgba(30,6,16,0.35) 55%, transparent 85%)' }}
       />
       <div
         className="absolute inset-0 hidden md:block"
@@ -123,24 +130,24 @@ export default function Hero({ installButton }) {
         </div>
 
         <h1
-          className="hero-rise text-[2.6rem] leading-[1.1] sm:text-6xl md:text-7xl font-serif font-bold text-white mb-4"
-          style={{ '--rise-delay': '200ms', textShadow: '0 2px 24px rgba(0,0,0,0.45)' }}
+          className="hero-rise text-[clamp(2.4rem,10.5vw,2.9rem)] leading-[1.1] sm:text-6xl md:text-7xl font-serif font-bold text-white mb-4"
+          style={{ '--rise-delay': '200ms', textShadow: '0 2px 4px rgba(0,0,0,0.35), 0 2px 24px rgba(0,0,0,0.5)' }}
         >
           Nora Hair Line
         </h1>
 
         <p
           className="hero-rise text-xl md:text-3xl italic font-serif mb-5 text-gold-400"
-          style={{ '--rise-delay': '350ms', textShadow: '0 1px 12px rgba(0,0,0,0.4)' }}
+          style={{ '--rise-delay': '350ms', textShadow: '0 1px 3px rgba(0,0,0,0.55), 0 1px 12px rgba(0,0,0,0.45)' }}
         >
           “Luxury for less…”
         </p>
 
         <p
-          className="hero-rise text-white/90 text-base md:text-lg max-w-xl mx-auto mb-9 leading-relaxed"
-          style={{ '--rise-delay': '500ms', textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
+          className="hero-rise text-white text-base md:text-lg max-w-xl mx-auto mb-9 leading-relaxed"
+          style={{ '--rise-delay': '500ms', textShadow: '0 1px 2px rgba(0,0,0,0.7), 0 2px 12px rgba(0,0,0,0.6)' }}
         >
-          Premium wigs, frontals, bundles and more — crafted to make you look and feel your most confident.
+          Premium wigs, frontals, bundles and more, crafted to make you look and feel your most confident.
         </p>
 
         <div className="hero-rise flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center" style={{ '--rise-delay': '650ms' }}>

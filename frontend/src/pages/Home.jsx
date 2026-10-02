@@ -87,7 +87,7 @@ export default function Home() {
             <p className="text-gray-500 mt-3">Find exactly what you're looking for</p>
           </Reveal>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {CATEGORIES.map((cat, i) => (
               <Reveal key={cat.name} delay={(i % 4) * 80}>
                 <Link
@@ -98,8 +98,8 @@ export default function Home() {
                     src={cat.image}
                     alt={cat.name}
                     width="400"
-                    height="400"
-                    className="aspect-square rounded-t-xl"
+                    height="500"
+                    className="aspect-[4/5] rounded-t-xl"
                     imgClassName="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="p-3">
@@ -123,10 +123,10 @@ export default function Home() {
           </Reveal>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md">
-                  <div className="skeleton h-40 sm:h-52 lg:h-64"></div>
+                  <div className="skeleton aspect-[4/5]"></div>
                   <div className="p-4 space-y-3">
                     <div className="skeleton h-4 rounded w-3/4"></div>
                     <div className="skeleton h-4 rounded w-1/2"></div>
@@ -141,7 +141,7 @@ export default function Home() {
               <p className="text-gray-400 text-sm mt-2">Check back soon!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
               {featured.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 4) * 80} className="h-full">
                   <ProductCard product={p} />
@@ -171,7 +171,7 @@ export default function Home() {
               </h2>
               <div className="w-16 h-1 bg-gold-400 mb-6"></div>
               <p className="text-burgundy-100 text-base leading-relaxed mb-4">
-                At Nora Hair Line, we believe that every woman deserves to look and feel beautiful without breaking the bank. We source the finest quality hair products — from silky straight to luscious curls — and make them available to you at prices that won't empty your wallet.
+                At Nora Hair Line, we believe that every woman deserves to look and feel beautiful without breaking the bank. We source the finest quality hair products, from silky straight to luscious curls, and make them available to you at prices that won't empty your wallet.
               </p>
               <p className="text-burgundy-100 text-base leading-relaxed mb-8">
                 Located at Trade Fair Complex in Lagos, we serve customers across Nigeria and beyond. Our collection is carefully curated to meet every hair need and style preference.

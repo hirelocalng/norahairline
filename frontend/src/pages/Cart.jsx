@@ -41,11 +41,11 @@ export default function Cart() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-3">
             {items.map(item => (
-              <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex gap-4 items-center">
+              <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 sm:p-4 flex gap-3 sm:gap-4 items-center">
                 {/* Image */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-burgundy-50 flex-shrink-0">
+                <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-burgundy-50 flex-shrink-0">
                   {item.primary_image ? (
-                    <img src={item.primary_image} alt={item.name} width="80" height="80" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img src={item.primary_image} alt={item.name} width="96" height="112" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <svg className="w-8 h-8 text-burgundy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,8 +57,8 @@ export default function Cart() {
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-sm sm:text-base truncate">{item.name}</p>
-                  <p className="text-xs text-gray-400 mb-1">{item.category}</p>
+                  <p className="font-semibold text-gray-800 text-sm sm:text-base leading-snug line-clamp-2">{item.name}</p>
+                  <p className="text-xs text-gray-400 mb-1 truncate">{item.category}</p>
                   <p className="text-gold-600 font-bold">₦{Number(item.price).toLocaleString()}</p>
                 </div>
 

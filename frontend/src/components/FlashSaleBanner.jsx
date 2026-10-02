@@ -104,7 +104,8 @@ export default function FlashSaleBanner() {
         <div className="relative">
           <img
             src={sale.banner_image_url}
-            alt="Flash Sale"
+            alt="Flash sale offer"
+            decoding="async"
             className="w-full block object-contain"
             style={{ background: '#3A0E20' }}
           />
