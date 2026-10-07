@@ -14,7 +14,7 @@ const NIGERIA_STATES = [
   'Taraba','Yobe','Zamfara',
 ];
 
-const LIMITS = { name: 100, phone: 20, email: 254, address: 300 };
+const LIMITS = { name: 100, phone: 20 };
 
 function getDeliveryFee(state) {
   if (state === 'Lagos Mainland') return 4000;
@@ -38,14 +38,11 @@ function cleanLine(value, maxLength) {
 }
 
 const PHONE_RE = /^\+?[0-9][0-9\s\-()]{6,18}$/;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function cleanForm(form) {
   return {
     name: cleanLine(form.name, LIMITS.name),
     phone: cleanLine(form.phone, LIMITS.phone),
-    email: cleanLine(form.email, LIMITS.email).toLowerCase(),
-    address: cleanLine(form.address, LIMITS.address),
     state: NIGERIA_STATES.includes(form.state) ? form.state : '',
   };
 }
@@ -55,8 +52,6 @@ function validate(c) {
   if (c.name.length < 2) e.name = 'Full name is required';
   if (!c.phone) e.phone = 'Phone number is required';
   else if (!PHONE_RE.test(c.phone) || c.phone.replace(/\D/g, '').length < 7) e.phone = 'Enter a valid phone number';
-  if (c.email && !EMAIL_RE.test(c.email)) e.email = 'Enter a valid email address';
-  if (c.address.length < 5) e.address = 'Please enter your full delivery address';
   if (!c.state) e.state = 'Please select a state';
   return e;
 }
@@ -77,7 +72,6 @@ export function buildWhatsAppMessage({ orderId, customer, items, subtotal, deliv
     '',
     `Name: ${customer.name}`,
     `Phone: ${customer.phone}`,
-    `Address: ${customer.address}`,
     `State: ${customer.state}`,
     '',
     'Please confirm availability and payment details. Thank you!',
@@ -86,7 +80,7 @@ export function buildWhatsAppMessage({ orderId, customer, items, subtotal, deliv
 
 export default function Checkout() {
   const { items, total, clearCart, removeItem } = useCart();
-  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', state: '' });
+  const [form, setForm] = useState({ name: '', phone: '', state: '' });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
@@ -149,8 +143,6 @@ export default function Checkout() {
       const res = await api.post('/orders', {
         customerName: customer.name,
         customerPhone: customer.phone,
-        customerEmail: customer.email || undefined,
-        customerAddress: customer.address,
         customerState: customer.state,
         items: items.map(i => ({ id: i.id, quantity: i.quantity })),
         paymentMethod: 'whatsapp',
@@ -197,7 +189,7 @@ export default function Checkout() {
           {/* Form */}
           <div className="lg:col-span-2 space-y-5">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
-              <h2 className="font-bold text-gray-800 mb-5">Delivery Details</h2>
+              <h2 className="font-bold text-gray-800 mb-5">Your Details</h2>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="co-name" className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
@@ -219,30 +211,6 @@ export default function Checkout() {
                     placeholder="e.g. 08012345678"
                   />
                   {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
-                </div>
-
-                <div>
-                  <label htmlFor="co-email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Email Address <span className="text-gray-400 font-normal">(optional, for order updates)</span>
-                  </label>
-                  <input
-                    id="co-email" name="email" value={form.email} onChange={handleChange}
-                    type="email" inputMode="email" autoComplete="email" maxLength={LIMITS.email}
-                    className={inputClass('email')}
-                    placeholder="e.g. amara@example.com"
-                  />
-                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-                </div>
-
-                <div>
-                  <label htmlFor="co-address" className="block text-sm font-medium text-gray-700 mb-1.5">Delivery Address *</label>
-                  <textarea
-                    id="co-address" name="address" value={form.address} onChange={handleChange} rows={3}
-                    autoComplete="street-address" maxLength={LIMITS.address}
-                    className={`${inputClass('address')} resize-none`}
-                    placeholder="House number, street, area..."
-                  />
-                  {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
                 </div>
 
                 <div>

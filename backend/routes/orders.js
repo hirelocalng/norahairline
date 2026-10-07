@@ -4,7 +4,7 @@ const pool = require('../db');
 const { sendOrderConfirmation } = require('../services/email');
 const { orderLimiter } = require('../middleware/security');
 const { NIGERIA_STATES, getDeliveryFee } = require('../config/delivery');
-const { cleanLine, isEmail, isPhone, toPositiveInt } = require('../utils/validate');
+const { cleanLine, isPhone, toPositiveInt } = require('../utils/validate');
 
 const MAX_LINE_ITEMS = 30;
 const MAX_QUANTITY = 20;
@@ -18,15 +18,11 @@ router.post('/', orderLimiter, async (req, res) => {
     const body = req.body || {};
     const customerName = cleanLine(body.customerName, 100);
     const customerPhone = cleanLine(body.customerPhone, 20);
-    const customerEmail = cleanLine(body.customerEmail, 254).toLowerCase();
-    const customerAddress = cleanLine(body.customerAddress, 300);
     const customerState = cleanLine(body.customerState, 50);
 
     const errors = {};
     if (customerName.length < 2) errors.name = 'Full name is required';
     if (!isPhone(customerPhone)) errors.phone = 'Enter a valid phone number';
-    if (customerEmail && !isEmail(customerEmail)) errors.email = 'Enter a valid email address';
-    if (customerAddress.length < 5) errors.address = 'Delivery address is required';
     if (!NIGERIA_STATES.includes(customerState)) errors.state = 'Please select a valid state';
     if (body.paymentMethod !== undefined && body.paymentMethod !== 'whatsapp') {
       errors.paymentMethod = 'Invalid payment method';
@@ -74,9 +70,9 @@ router.post('/', orderLimiter, async (req, res) => {
     const total = subtotal + deliveryFee;
 
     const result = await pool.query(
-      `INSERT INTO orders (customer_name, customer_phone, customer_email, customer_address, customer_state, items, total, payment_method)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'whatsapp') RETURNING *`,
-      [customerName, customerPhone, customerEmail || null, customerAddress, customerState, JSON.stringify(items), total]
+      `INSERT INTO orders (customer_name, customer_phone, customer_state, items, total, payment_method)
+       VALUES ($1, $2, $3, $4, $5, 'whatsapp') RETURNING *`,
+      [customerName, customerPhone, customerState, JSON.stringify(items), total]
     );
     const order = result.rows[0];
 
@@ -95,7 +91,6 @@ router.post('/', orderLimiter, async (req, res) => {
       customer: {
         name: customerName,
         phone: customerPhone,
-        address: customerAddress,
         state: customerState,
       },
     });

@@ -129,7 +129,7 @@ export default function AdminOrders() {
                           <p><span className="font-medium">Name:</span> {order.customer_name}</p>
                           <p><span className="font-medium">Phone:</span> {order.customer_phone}</p>
                           <p><span className="font-medium">State:</span> {order.customer_state}</p>
-                          <p><span className="font-medium">Address:</span> {order.customer_address}</p>
+                          <p><span className="font-medium">Address:</span> {order.customer_address || '—'}</p>
                         </div>
                       </div>
 

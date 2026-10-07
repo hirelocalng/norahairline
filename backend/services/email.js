@@ -103,7 +103,6 @@ async function sendOrderConfirmation(order) {
       <p style="margin:0;color:#444;font-size:14px;line-height:1.7;">
         ${esc(order.customer_name)}<br>
         ${esc(order.customer_phone)}<br>
-        ${esc(order.customer_address)}<br>
         ${esc(order.customer_state)}
       </p>
     </div>

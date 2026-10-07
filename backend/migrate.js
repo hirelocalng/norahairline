@@ -49,6 +49,8 @@ async function run() {
   `);
   // Add email column if table already existed without it
   await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(255)`);
+  // Address is no longer collected at checkout; keep the column for old orders.
+  await client.query(`ALTER TABLE orders ALTER COLUMN customer_address DROP NOT NULL`);
   console.log('orders table ready');
 
   // Create flash_sale_settings table (single-row config)
